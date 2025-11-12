@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, message, interested_in } = body;
+    const { email, name, country, message, interested_in } = body;
 
     if (!email || !name) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from("contact_submissions")
-      .insert([{ email, name, message, interested_in }]);
+      .insert([{ email, name, country, message, interested_in }]);
 
     if (error) {
       console.error("Error Supabase:", error);
