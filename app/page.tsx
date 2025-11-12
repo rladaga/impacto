@@ -2,9 +2,9 @@ import ContactForm from "@/components/ContactForm";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl text-blue-600 text-blue-600 font-bold text-center mb-4">
+        <h1 className="text-4xl text-blue-600 font-bold text-center mb-4">
           IMPACTO
         </h1>
         <p className="text-center text-blue-600 mb-12 max-w-2xl mx-auto">
