@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Archia";
+  src: url("/fonts/archia-regular.woff2") format("woff2"),
+    url("/fonts/archia-regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,6 +21,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --color-primary: #2d2c67;
+  --color-secondary: #4a69ff;
+  --color-accent: #a5afd6;
+  --color-light: #d5d6da;
+  --color-dark: #25251d;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -22,5 +39,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Archia", Arial, Helvetica, sans-serif;
 }
