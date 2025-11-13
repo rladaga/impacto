@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "motion/react";
+import type { Variants } from "motion/react";
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -75,9 +77,54 @@ export default function ContactForm() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  const buttonVariants = {
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 },
+  };
+
+  const messageVariants: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 10,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 100,
+      },
+    },
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+    <motion.form
+      onSubmit={handleSubmit}
+      className="space-y-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
         <label className="block text-secondary text-md font-medium mb-1">
           Nombre
         </label>
@@ -88,11 +135,11 @@ export default function ContactForm() {
           onChange={handleChange}
           placeholder="Tu nombre"
           required
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent "
+          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
-      </div>
+      </motion.div>
 
-      <div>
+      <motion.div variants={itemVariants}>
         <label className="block text-secondary text-md font-medium mb-1">
           Email
         </label>
@@ -103,11 +150,11 @@ export default function ContactForm() {
           onChange={handleChange}
           placeholder="tu@email.com"
           required
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent "
+          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
-      </div>
+      </motion.div>
 
-      <div>
+      <motion.div variants={itemVariants}>
         <label className="block text-secondary text-md font-medium mb-1">
           País
         </label>
@@ -116,7 +163,7 @@ export default function ContactForm() {
           value={formData.country}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent "
+          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
           <option value="" disabled>
             Selecciona tu país
@@ -127,9 +174,9 @@ export default function ContactForm() {
             </option>
           ))}
         </select>
-      </div>
+      </motion.div>
 
-      <div>
+      <motion.div variants={itemVariants}>
         <label className="block text-secondary text-md font-medium mb-1">
           ¿Te interesa?
         </label>
@@ -137,7 +184,7 @@ export default function ContactForm() {
           name="interested_in"
           value={formData.interested_in}
           onChange={handleChange}
-          className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2  focus:ring-secondary  focus:border-transparent"
+          className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
           <option className="text-black" value="newsletter">
             Solo el newsletter
@@ -149,9 +196,9 @@ export default function ContactForm() {
             Ambos
           </option>
         </select>
-      </div>
+      </motion.div>
 
-      <div>
+      <motion.div variants={itemVariants}>
         <label className="block text-secondary text-md font-medium mb-1">
           Mensaje (opcional)
         </label>
@@ -163,25 +210,31 @@ export default function ContactForm() {
           rows={4}
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
-      </div>
+      </motion.div>
 
-      <button
+      <motion.button
         type="submit"
         disabled={loading}
-        className="w-full bg-secondary text-white font-medium py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+        variants={buttonVariants}
+        whileHover="hover"
+        whileTap="tap"
+        className="w-full bg-secondary text-white font-medium py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
       >
         {loading ? "Enviando..." : "Enviar"}
-      </button>
+      </motion.button>
 
       {message && (
-        <p
+        <motion.p
+          variants={messageVariants}
+          initial="hidden"
+          animate="visible"
           className={`text-md text-center ${
             message.includes("Error") ? "text-red-600" : "text-green-600"
           }`}
         >
           {message}
-        </p>
+        </motion.p>
       )}
-    </form>
+    </motion.form>
   );
 }
