@@ -125,7 +125,7 @@ export default function ContactForm() {
       animate="visible"
     >
       <motion.div variants={itemVariants}>
-        <label className="block text-secondary text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1">
           Nombre
         </label>
         <input
@@ -140,7 +140,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-secondary text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1">
           Email
         </label>
         <input
@@ -155,9 +155,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-secondary text-md font-medium mb-1">
-          País
-        </label>
+        <label className="block text-dark text-md font-medium mb-1">País</label>
         <select
           name="country"
           value={formData.country}
@@ -177,7 +175,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-secondary text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1">
           ¿Te interesa?
         </label>
         <select
@@ -199,7 +197,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-secondary text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1">
           Mensaje (opcional)
         </label>
         <textarea

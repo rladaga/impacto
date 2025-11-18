@@ -115,11 +115,11 @@ export default function Home() {
 
             {/* Card blanca con contenido */}
             <motion.div
-              className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto"
+              className="bg-linear-to-b from-secondary to-light rounded-lg shadow-lg p-8 max-w-2xl mx-auto"
               variants={itemVariants}
             >
               <motion.h2
-                className="text-2xl text-secondary font-semibold mb-3"
+                className="text-2xl text-light font-semibold mb-3"
                 variants={itemVariants}
               >
                 Mantente informado
