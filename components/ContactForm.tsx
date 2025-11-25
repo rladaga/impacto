@@ -1,36 +1,123 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import type { Variants } from "motion/react";
+
+interface CityResult {
+  name: string;
+  countryName: string;
+}
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [countries, setCountries] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<CityResult[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    country: "",
+    location: "",
     message: "",
-    interested_in: "newsletter",
+    interested_in: "familia/persona",
   });
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=translations,name")
-      .then((res) => res.json())
-      .then((data) => {
-        const countryNames = data
-          .map(
-            (country: any) =>
-              country.translations?.spa?.common || country.name.common
-          )
-          .filter(Boolean)
-          .sort((a: string, b: string) => a.localeCompare(b));
-        setCountries(countryNames);
-      })
-      .catch(() => setCountries([]));
-  }, []);
+    if (searchQuery.length < 2) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    if (searchQuery.includes(",")) {
+      setShowDropdown(false);
+      return;
+    }
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    setSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(
+          searchQuery
+        )}&format=json&limit=10&dedupe=1&accept-language=es`;
+
+        console.log("Fetching:", url);
+
+        const response = await fetch(url, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        console.log("Response status:", response.status);
+
+        const data = await response.json();
+        console.log("Data received:", data);
+
+        if (data && data.length > 0) {
+          const results: CityResult[] = data
+            .map((place: any) => {
+              const city = place.name || "";
+              // Extrae el país del final de display_name
+              const displayNameParts = place.display_name.split(",");
+              const country =
+                displayNameParts[displayNameParts.length - 1]?.trim() || "";
+              return {
+                name: city,
+                countryName: country,
+              };
+            })
+            .filter((item: CityResult) => item.name && item.countryName)
+            .filter(
+              (item: CityResult, index: number, self: CityResult[]) =>
+                index ===
+                self.findIndex(
+                  (t) =>
+                    t.name === item.name && t.countryName === item.countryName
+                )
+            );
+
+          console.log("Filtered results:", results);
+          setSearchResults(results);
+          setShowDropdown(true);
+        } else {
+          console.log("No data returned or empty array");
+        }
+      } catch (error) {
+        console.error("Error buscando ciudades:", error);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchQuery]);
+
+  const handleSelectCity = (city: CityResult) => {
+    const fullName = `${city.name}, ${city.countryName}`;
+    setFormData({
+      ...formData,
+      location: fullName,
+    });
+    setSearchQuery(fullName);
+    setShowDropdown(false);
+    setSearchResults([]);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -62,10 +149,11 @@ export default function ContactForm() {
         setFormData({
           name: "",
           email: "",
-          country: "",
+          location: "",
           message: "",
-          interested_in: "newsletter",
+          interested_in: "familia/persona",
         });
+        setSearchQuery("");
       } else {
         setMessage(data.error || "Error al enviar. Intenta de nuevo.");
       }
@@ -133,7 +221,7 @@ export default function ContactForm() {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          placeholder="Tu nombre"
+          placeholder="Tu nombre y apellido"
           required
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
@@ -148,35 +236,69 @@ export default function ContactForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="tu@email.com"
+          placeholder="Tu correo de contacto"
           required
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
       </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1">País</label>
-        <select
-          name="country"
-          value={formData.country}
-          onChange={handleChange}
-          required
+      <motion.div variants={itemVariants} className="relative">
+        <label className="block text-dark text-md font-medium mb-1">
+          Ciudad y País
+        </label>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          placeholder="Dónde estás (para acercarte recursos)"
+          onFocus={() => searchQuery.length >= 2 && setShowDropdown(true)}
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
-        >
-          <option value="" disabled>
-            Selecciona tu país
-          </option>
-          {countries.map((country) => (
-            <option key={country} value={country}>
-              {country}
-            </option>
-          ))}
-        </select>
+        />
+
+        {searching && (
+          <div className="absolute right-3 top-10 text-gray-500">
+            <span>Buscando...</span>
+          </div>
+        )}
+
+        {showDropdown && searchResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+          >
+            {searchResults.map((city, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSelectCity(city)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 border-b last:border-b-0 transition text-black"
+              >
+                <div className="font-medium">
+                  {city.name}, {city.countryName}
+                </div>
+              </button>
+            ))}
+          </motion.div>
+        )}
+
+        {showDropdown &&
+          searchQuery.length >= 2 &&
+          searchResults.length === 0 &&
+          !searching && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-gray-600 text-center"
+            >
+              No se encontraron ciudades
+            </motion.div>
+          )}
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <label className="block text-dark text-md font-medium mb-1">
-          ¿Te interesa?
+          ¿Cómo quieres participar?
         </label>
         <select
           name="interested_in"
@@ -184,27 +306,33 @@ export default function ContactForm() {
           onChange={handleChange}
           className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
-          <option className="text-black" value="newsletter">
-            Solo el newsletter
+          <option className="text-black" value="familia/persona">
+            Familia/Persona
           </option>
-          <option className="text-black" value="participar">
-            Participar como proyecto
+          <option className="text-black" value="profesional">
+            Profesional
           </option>
-          <option className="text-black" value="ambos">
-            Ambos
+          <option className="text-black" value="proyecto/asociacion">
+            Proyecto/Asociación
+          </option>
+          <option className="text-black" value="empresa/fundacion">
+            Empresa/Fundación
+          </option>
+          <option className="text-black" value="otro">
+            Otro
           </option>
         </select>
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <label className="block text-dark text-md font-medium mb-1">
-          Mensaje (opcional)
+          Cuéntanos en una frase qué te trae aquí (opcional):
         </label>
         <textarea
           name="message"
           value={formData.message}
           onChange={handleChange}
-          placeholder="Cuéntanos más..."
+          placeholder="Esto nos ayuda a conectar mejor contigo."
           rows={4}
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
@@ -218,7 +346,7 @@ export default function ContactForm() {
         whileTap="tap"
         className="w-full bg-secondary text-white font-medium py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
       >
-        {loading ? "Enviando..." : "Enviar"}
+        {loading ? "Enviando..." : "Quiero formar parte"}
       </motion.button>
 
       {message && (
