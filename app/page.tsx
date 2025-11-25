@@ -113,6 +113,47 @@ export default function Home() {
               <ImpactoLogo />
             </motion.div>
 
+            <motion.section
+              className="max-w-4xl mx-auto mb-12 px-6"
+              variants={itemVariants}
+            >
+              <motion.h2
+                className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
+                variants={itemVariants}
+              >
+                Un espacio que amplifica, una herramienta que conecta.
+              </motion.h2>
+
+              <motion.div
+                className="space-y-4 text-dark text-lg leading-relaxed"
+                variants={itemVariants}
+              >
+                <p>
+                  En todo el mundo, existen miles de proyectos, personas y
+                  espacios que trabajan por la inclusión y la discapacidad. Pero
+                  muchos siguen sin visibilidad, sin conexión y sin el alcance
+                  que merecen.
+                </p>
+
+                <p>
+                  <span className="font-semibold text-secondary">IMPACTO</span>{" "}
+                  nace como una red digital que geolocaliza iniciativas, conecta
+                  actores y amplifica el trabajo inclusivo.
+                </p>
+
+                <p>
+                  Una herramienta sencilla para algo muy grande: Que ninguna
+                  familia, ningún proyecto y ninguna buena idea se quede sola o
+                  invisible.
+                </p>
+
+                <p className="text-secondary font-medium">
+                  Todavía estamos desarrollando la plataforma, pero la red ya
+                  está creciendo.
+                </p>
+              </motion.div>
+            </motion.section>
+
             {/* Card blanca con contenido */}
             <motion.div
               className="bg-linear-to-b from-secondary to-light rounded-lg shadow-lg p-8 max-w-2xl mx-auto"
@@ -122,13 +163,22 @@ export default function Home() {
                 className="text-2xl text-light font-semibold mb-3"
                 variants={itemVariants}
               >
-                Mantente informado
+                Comienza a generar impacto desde hoy
               </motion.h2>
 
               <motion.p className="text-dark mb-3" variants={itemVariants}>
-                Estamos trabajando en una plataforma para visibilizar proyectos
-                inclusivos. Déjanos tu información para estar al tanto de
-                nuestras novedades.
+                Súmate dejando tu contacto.{" "}
+              </motion.p>
+              <motion.p className="text-dark mb-6" variants={itemVariants}>
+                En IMPACTO buscamos{" "}
+                <strong>familias y personas con discapacidad</strong> que
+                necesiten recursos cercanos, <strong>profesionales</strong> que
+                quieran aportar, <strong>proyectos y asociaciones</strong> que
+                buscan visibilidad y alianzas, y{" "}
+                <strong>empresas o fundaciones</strong> con RSC/ESG. Si te
+                interesa conectar, aprender o colaborar, déjanos tu contacto: te
+                avisaremos del lanzamiento, novedades y oportunidades para
+                participar.
               </motion.p>
 
               {/* Formulario */}
