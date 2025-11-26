@@ -115,13 +115,13 @@ export default function Home() {
                   variants={itemVariants}
                 >
                   <motion.h2
-                    className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
+                    className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight text-center"
                     variants={itemVariants}
                   >
                     Un espacio que amplifica, una herramienta que conecta.
                   </motion.h2>
                   <motion.div
-                    className="space-y-4 text-dark text-lg leading-relaxed"
+                    className="space-y-4 text-dark text-lg leading-relaxed text-center"
                     variants={itemVariants}
                   >
                     <p>
