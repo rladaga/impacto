@@ -255,32 +255,34 @@ export default function ContactForm() {
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
 
-        {searching && (
+        {searching && searchQuery.length >= 2 && (
           <div className="absolute right-3 top-10 text-gray-500">
             <span>Buscando...</span>
           </div>
         )}
 
-        {showDropdown && searchResults.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute z-10 w-full mt-2 bg-accent border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
-          >
-            {searchResults.map((city, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectCity(city)}
-                className="w-full text-left px-4 py-3 hover:bg-gray-100 border-b last:border-b-0 transition text-black"
-              >
-                <div className="font-medium">
-                  {city.name}, {city.countryName}
-                </div>
-              </button>
-            ))}
-          </motion.div>
-        )}
+        {showDropdown &&
+          searchQuery.length >= 2 &&
+          searchResults.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute z-10 w-full mt-2 bg-accent border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+            >
+              {searchResults.map((city, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelectCity(city)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-100 border-b last:border-b-0 transition text-black"
+                >
+                  <div className="font-medium">
+                    {city.name}, {city.countryName}
+                  </div>
+                </button>
+              ))}
+            </motion.div>
+          )}
 
         {showDropdown &&
           searchQuery.length >= 2 &&
