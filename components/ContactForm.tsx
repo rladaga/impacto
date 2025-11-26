@@ -265,7 +265,7 @@ export default function ContactForm() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+            className="absolute z-10 w-full mt-2 bg-accent border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
           >
             {searchResults.map((city, idx) => (
               <button
@@ -289,7 +289,7 @@ export default function ContactForm() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-gray-600 text-center"
+              className="absolute z-10 w-full mt-2 bg-accent border border-gray-300 rounded-lg shadow-lg p-4 text-light text-center"
             >
               No se encontraron ciudades
             </motion.div>

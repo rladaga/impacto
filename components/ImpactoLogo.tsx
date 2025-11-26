@@ -88,7 +88,7 @@ export default function ImpactoLogo({
       viewBox="-100 -150 7085 1300"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="mx-auto mb-16 w-140 h-auto"
+      className="mx-auto lg:w-140 h-auto"
       variants={variants}
       initial={initial}
       animate={animate}
