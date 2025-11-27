@@ -251,6 +251,8 @@ export default function ContactForm() {
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Dónde estás (para acercarte recursos)"
+          required
+          autoComplete="on"
           onFocus={() => searchQuery.length >= 2 && setShowDropdown(true)}
           className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
@@ -305,6 +307,7 @@ export default function ContactForm() {
         <select
           name="interested_in"
           value={formData.interested_in}
+          required
           onChange={handleChange}
           className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
