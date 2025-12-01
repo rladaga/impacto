@@ -1,189 +1,310 @@
 "use client";
 
-import { motion, AnimatePresence, type Variants } from "motion/react";
-import { useState, useEffect } from "react";
-import ContactForm from "@/components/ContactForm";
-import ImpactoLogo from "@/components/ImpactoLogo";
-import SplashScreen from "@/components/SplashScreen";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import ImpactoLogoChico from "../components/ImpactoLogoChico";
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
-};
+interface Project {
+  id: number;
+  name: string;
+  area: string;
+  lat: number;
+  lng: number;
+  description: string;
+  services: string[];
+}
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
+const projects: Project[] = [
+  {
+    id: 1,
+    name: "Centre de Recursos",
+    area: "Eixample",
+    lat: 41.3851,
+    lng: 2.1734,
+    description:
+      "Comprehensive rehabilitation and therapeutic services for people with physical and cognitive disabilities.",
+    services: ["Physical therapy", "Speech therapy", "Occupational therapy"],
   },
-};
+  {
+    id: 2,
+    name: "Taller Ocupacional",
+    area: "Gràcia",
+    lat: 41.3954,
+    lng: 2.1566,
+    description:
+      "Occupational workshop providing vocational training and employment opportunities for people with intellectual disabilities.",
+    services: [
+      "Vocational training",
+      "Employment support",
+      "Social integration",
+    ],
+  },
+  {
+    id: 3,
+    name: "Espai Inclusiu",
+    area: "Sants",
+    lat: 41.3736,
+    lng: 2.1412,
+    description:
+      "Community center focused on inclusive activities, sports, and cultural events for all abilities.",
+    services: ["Adaptive sports", "Cultural events", "Social programs"],
+  },
+  {
+    id: 4,
+    name: "Fundació Acceso",
+    area: "Les Corts",
+    lat: 41.3813,
+    lng: 2.1159,
+    description:
+      "Works on accessibility improvements and advocacy for people with disabilities across Barcelona.",
+    services: ["Accessibility consulting", "Advocacy", "Community education"],
+  },
+  {
+    id: 5,
+    name: "Centre de Dia",
+    area: "Montjuïc",
+    lat: 41.3629,
+    lng: 2.1627,
+    description:
+      "Day care facility offering support, activities, and respite services for people with various disabilities.",
+    services: ["Day care", "Activities", "Respite care"],
+  },
+];
+
+const barcelonaBounds: [number, number][] = [
+  [2.0534, 41.3202],
+  [2.228, 41.4637],
+];
+
+const API_KEY = "mHi0ArjtMIFD8jqf0S6N";
 
 export default function Home() {
-  const [showContent, setShowContent] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-  const [isLogoVisible, setIsLogoVisible] = useState(true);
-  const [navBgColor, setNavBgColor] = useState("rgb(6, 22, 90)");
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null
+  );
+  const [markers, setMarkers] = useState<
+    Record<number, { marker: maplibregl.Marker; el: HTMLElement }>
+  >({});
+  const [activePage, setActivePage] = useState<"home" | "projects">("home");
 
-  const handleEnter = () => {
-    setShowContent(true);
+  const calculateDistance = (lat: number, lng: number): string => {
+    const centerLat = 41.3851;
+    const centerLng = 2.1657;
+    const R = 111;
+    const dLat = (lat - centerLat) * R;
+    const dLng = (lng - centerLng) * R * Math.cos((centerLat * Math.PI) / 180);
+    return Math.sqrt(dLat * dLat + dLng * dLng).toFixed(1);
   };
 
   useEffect(() => {
-    const getBackgroundColor = () => {
-      const element = document.querySelector("main");
-      if (element) {
-        const color = window.getComputedStyle(element).backgroundColor;
-        setNavBgColor(color);
+    if (!mapContainer.current) return;
+
+    // Set RTL text plugin
+    maplibregl.setRTLTextPlugin(
+      "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
+      true
+    );
+
+    // Initialize map
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: `https://api.maptiler.com/maps/darkmatter/style.json?key=${API_KEY}`,
+      center: [2.1728, 41.3851],
+      zoom: 12,
+      minZoom: 11,
+      maxZoom: 20,
+      maxBounds: barcelonaBounds as maplibregl.LngLatBoundsLike,
+    });
+
+    map.current.on("load", () => {
+      const newMarkers: Record<
+        number,
+        { marker: maplibregl.Marker; el: HTMLElement }
+      > = {};
+
+      projects.forEach((project) => {
+        const el = document.createElement("div");
+        el.className =
+          "w-4 h-4 rounded-full bg-white cursor-pointer transition-all";
+        el.style.width = "16px";
+        el.style.height = "16px";
+        el.style.borderRadius = "50%";
+        el.style.backgroundColor = "white";
+        el.style.cursor = "pointer";
+        el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+        el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+
+        el.onmouseenter = () => {
+          el.style.filter =
+            "drop-shadow(0 0 25px rgba(139, 92, 246, 1)) brightness(1.2)";
+          el.style.boxShadow = "0 0 25px rgba(139, 92, 246, 1)";
+        };
+
+        el.onmouseleave = () => {
+          if (selectedProjectId !== project.id) {
+            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+            el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+          }
+        };
+
+        el.onclick = () => selectProject(project.id);
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([project.lng, project.lat])
+          .addTo(map.current!);
+
+        newMarkers[project.id] = { marker, el };
+      });
+
+      setMarkers(newMarkers);
+    });
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
       }
     };
-    window.addEventListener("scroll", getBackgroundColor);
-    return () => window.removeEventListener("scroll", getBackgroundColor);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-      setIsLogoVisible(window.scrollY < 150);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const selectProject = (projectId: number) => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    setSelectedProjectId(projectId);
+
+    Object.entries(markers).forEach(([id, m]) => {
+      if (id === projectId.toString()) {
+        m.el.style.filter =
+          "drop-shadow(0 0 35px rgba(59, 130, 246, 1)) brightness(1.5) saturate(1.2)";
+        m.el.style.boxShadow = "0 0 35px rgba(59, 130, 246, 1)";
+      } else {
+        m.el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+        m.el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+      }
+    });
+
+    if (map.current) {
+      map.current.flyTo({
+        center: [project.lng, project.lat],
+        zoom: 13,
+        duration: 1000,
+      });
+    }
+  };
+
+  const closeDetail = () => {
+    setSelectedProjectId(null);
+    Object.values(markers).forEach((m) => {
+      m.el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+      m.el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+    });
+
+    // Restore to initial view
+    if (map.current) {
+      map.current.flyTo({
+        center: [2.1728, 41.3851],
+        zoom: 12,
+        duration: 1000,
+      });
+    }
+  };
+
+  const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   return (
-    <AnimatePresence>
-      {!showContent && <SplashScreen onEnter={handleEnter} />}
+    <div className="w-full h-screen bg-slate-900 overflow-hidden">
+      {/* Map */}
+      <div ref={mapContainer} className="w-full h-full absolute inset-0" />
 
-      {showContent && (
-        <>
-          {isLogoVisible ? null : (
-            <motion.nav
-              className="fixed top-0 left-0 right-0 z-40 bg-light/99 backdrop-blur-md"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: showContent ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                background: navBgColor,
-                boxShadow: "0 2px 16px rgba(0, 0, 0, 0.08)",
-              }}
-            >
-              <div className="w-full flex items-center mb-0 justify-center sm:h-[55px] lg:h-[70px] mt-4 text-center">
-                {/* Logo in Navbar - Centered */}
-                <motion.div
-                  animate={{
-                    scale: isLogoVisible ? 0 : 1,
-                    opacity: isLogoVisible ? 0 : 1,
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className="scale-40 lg:scale-30"
-                >
-                  <ImpactoLogo />
-                </motion.div>
-              </div>
-            </motion.nav>
-          )}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-8 left-8 z-20 w-20 h-20"
+      >
+        <ImpactoLogoChico initial="hidden" animate="visible" />
+      </motion.div>
 
-          {/* CONTENIDO PRINCIPAL */}
-          <motion.main
-            className="min-h-screen bg-linear-to-b from-light to-secondary"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              duration: 1.2,
-              ease: "easeOut",
-            }}
+      {/* Navbar */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="fixed top-8 left-1/2 transform -translate-x-1/2 z-20 bg-primary backdrop-blur-md border border-secondary rounded-full px-6 py-3 shadow-lg"
+      >
+        <div className="flex gap-6 items-center">
+          <button
+            onClick={() => setActivePage("home")}
+            className={`text-sm font-medium transition-colors ${
+              activePage === "home"
+                ? "text-light"
+                : "text-secondary hover:text-accent"
+            }`}
           >
-            <div className="container mx-auto px-4 py-12">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={containerVariants}
+            home
+          </button>
+          <button
+            onClick={() => setActivePage("projects")}
+            className={`text-sm font-medium transition-colors ${
+              activePage === "projects"
+                ? "text-light"
+                : "text-secondary hover:text-accent"
+            }`}
+          >
+            projects
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Detail Panel */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-0 left-0 right-0 z-15 bg-linear-to-t from-slate-900/98 to-slate-900/95 border-t border-blue-500/20 backdrop-blur-md px-8 py-6 max-h-80 overflow-y-auto"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold text-white">
+                {selectedProject.name}
+              </h2>
+              <button
+                onClick={closeDetail}
+                className="text-slate-400 hover:text-white hover:bg-blue-500/10 rounded-md p-2 transition-colors text-2xl font-light"
               >
-                {/* Logo con animación */}
-                <motion.div className="mb-16" variants={itemVariants}>
-                  <ImpactoLogo />
-                </motion.div>
-                <motion.section
-                  className="max-w-4xl mx-auto mb-12 px-6"
-                  variants={itemVariants}
-                >
-                  <motion.h2
-                    className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight text-center"
-                    variants={itemVariants}
-                  >
-                    Un espacio que amplifica, una herramienta que conecta.
-                  </motion.h2>
-                  <motion.div
-                    className="space-y-4 text-dark text-lg leading-relaxed text-center"
-                    variants={itemVariants}
-                  >
-                    <p>
-                      En todo el mundo, existen miles de proyectos, personas y
-                      espacios que trabajan por la inclusión y la discapacidad.
-                      Pero muchos siguen sin visibilidad, sin conexión y sin el
-                      alcance que merecen.
-                    </p>
-                    <p>
-                      <span className="font-bold text-secondary">
-                        <strong>IMPACTO</strong>
-                      </span>{" "}
-                      nace como una red digital que geolocaliza iniciativas,
-                      conecta actores y amplifica el trabajo inclusivo.
-                    </p>
-                    <p>
-                      Una herramienta sencilla para algo muy grande: Que ninguna
-                      familia, ningún proyecto y ninguna buena idea se quede
-                      sola o invisible.
-                    </p>
-                    <p className="text-secondary font-medium">
-                      Todavía estamos desarrollando la plataforma, pero la red
-                      ya está creciendo.
-                    </p>
-                  </motion.div>
-                </motion.section>
-                {/* Card blanca con contenido */}
-                <motion.div
-                  className="bg-linear-to-b from-secondary to-accent rounded-lg shadow-lg p-8 max-w-2xl mx-auto"
-                  variants={itemVariants}
-                >
-                  <motion.h2
-                    className="text-2xl text-light font-semibold mb-3"
-                    variants={itemVariants}
-                  >
-                    Comienza a generar impacto desde hoy
-                  </motion.h2>
-                  <motion.p className="text-dark mb-3" variants={itemVariants}>
-                    Súmate dejando tu contacto.{" "}
-                  </motion.p>
-                  <motion.p className="text-dark mb-6" variants={itemVariants}>
-                    En <strong>IMPACTO</strong> buscamos{" "}
-                    <strong>familias y personas con discapacidad</strong> que
-                    necesiten recursos cercanos, <strong>profesionales</strong>{" "}
-                    que quieran aportar,{" "}
-                    <strong>proyectos y asociaciones</strong> que buscan
-                    visibilidad y alianzas, y{" "}
-                    <strong>empresas o fundaciones</strong> con RSC/ESG. Si te
-                    interesa conectar, aprender o colaborar, déjanos tu
-                    contacto: te avisaremos del lanzamiento, novedades y
-                    oportunidades para participar.
-                  </motion.p>
-                  {/* Formulario */}
-                  <motion.div variants={itemVariants}>
-                    <ContactForm />
-                  </motion.div>
-                </motion.div>
-              </motion.div>
+                ×
+              </button>
             </div>
-          </motion.main>
-        </>
-      )}
-    </AnimatePresence>
+
+            <div className="flex gap-4 mb-3 text-sm text-slate-400 flex-wrap">
+              <span>📍 {selectedProject.area}</span>
+              <span>
+                ~{calculateDistance(selectedProject.lat, selectedProject.lng)}{" "}
+                km from center
+              </span>
+            </div>
+
+            <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+              {selectedProject.description}
+            </p>
+
+            <div className="flex gap-2 flex-wrap">
+              {selectedProject.services.map((service) => (
+                <span
+                  key={service}
+                  className="inline-block px-3 py-1 bg-blue-500/20 border border-blue-500/40 rounded-full text-xs text-blue-400"
+                >
+                  {service}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
