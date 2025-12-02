@@ -78,7 +78,7 @@ const barcelonaBounds: [number, number][] = [
   [2.228, 41.4637],
 ];
 
-const API_KEY = "mHi0ArjtMIFD8jqf0S6N";
+const API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "";
 
 export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -110,58 +110,67 @@ export default function Home() {
     );
 
     // Initialize map
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/darkmatter/style.json?key=${API_KEY}`,
-      center: [2.1728, 41.3851],
-      zoom: 12,
-      minZoom: 11,
-      maxZoom: 20,
-      maxBounds: barcelonaBounds as maplibregl.LngLatBoundsLike,
-    });
+    fetch("/map_style.json")
+      .then((res) => res.json())
+      .then((style) => {
+        const styleString = JSON.stringify(style);
+        const updatedStyleString = styleString.replace(/{key}/g, API_KEY);
+        const updatedStyle = JSON.parse(updatedStyleString);
 
-    map.current.on("load", () => {
-      const newMarkers: Record<
-        number,
-        { marker: maplibregl.Marker; el: HTMLElement }
-      > = {};
+        map.current = new maplibregl.Map({
+          container: mapContainer.current!,
+          style: updatedStyle,
+          center: [2.1728, 41.3851],
+          zoom: 12,
+          minZoom: 11,
+          maxZoom: 20,
+          maxBounds: barcelonaBounds as maplibregl.LngLatBoundsLike,
+        });
 
-      projects.forEach((project) => {
-        const el = document.createElement("div");
-        el.className =
-          "w-4 h-4 rounded-full bg-white cursor-pointer transition-all";
-        el.style.width = "16px";
-        el.style.height = "16px";
-        el.style.borderRadius = "50%";
-        el.style.backgroundColor = "white";
-        el.style.cursor = "pointer";
-        el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-        el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+        map.current.on("load", () => {
+          const newMarkers: Record<
+            number,
+            { marker: maplibregl.Marker; el: HTMLElement }
+          > = {};
 
-        el.onmouseenter = () => {
-          el.style.filter =
-            "drop-shadow(0 0 25px rgba(139, 92, 246, 1)) brightness(1.2)";
-          el.style.boxShadow = "0 0 25px rgba(139, 92, 246, 1)";
-        };
-
-        el.onmouseleave = () => {
-          if (selectedProjectId !== project.id) {
-            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+          projects.forEach((project) => {
+            const el = document.createElement("div");
+            el.className =
+              "w-4 h-4 rounded-full bg-white cursor-pointer transition-all";
+            el.style.width = "16px";
+            el.style.height = "16px";
+            el.style.borderRadius = "50%";
+            el.style.backgroundColor = "white";
+            el.style.cursor = "pointer";
             el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-          }
-        };
+            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
 
-        el.onclick = () => selectProject(project.id);
+            el.onmouseenter = () => {
+              el.style.filter =
+                "drop-shadow(0 0 25px rgba(139, 92, 246, 1)) brightness(1.2)";
+              el.style.boxShadow = "0 0 25px rgba(139, 92, 246, 1)";
+            };
 
-        const marker = new maplibregl.Marker({ element: el })
-          .setLngLat([project.lng, project.lat])
-          .addTo(map.current!);
+            el.onmouseleave = () => {
+              if (selectedProjectId !== project.id) {
+                el.style.filter =
+                  "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+                el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+              }
+            };
 
-        newMarkers[project.id] = { marker, el };
+            el.onclick = () => selectProject(project.id);
+
+            const marker = new maplibregl.Marker({ element: el })
+              .setLngLat([project.lng, project.lat])
+              .addTo(map.current!);
+
+            newMarkers[project.id] = { marker, el };
+          });
+
+          setMarkers(newMarkers);
+        });
       });
-
-      setMarkers(newMarkers);
-    });
 
     return () => {
       if (map.current) {
