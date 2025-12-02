@@ -50,7 +50,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
         <div className="text-center space-y-8 relative z-10">
           {/* Texto superior - "Estamos preparando algo grande" */}
           <motion.p
-            className="text-light font-medium text-lg w-fit flex mx-auto px-4 py-2 rounded-md text-center bg-primary/70 backdrop-blur-sm"
+            className="text-light font-medium text-lg w-fit flex mx-auto px-4 py-2 rounded-md text-center bg-primary/70 backdrop-blur-sm font-alte-bold"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -68,7 +68,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
 
           {/* Texto principal */}
           <motion.h1
-            className="text-4xl md:text-5xl font-bold text-light max-w-2xl leading-tight"
+            className="text-4xl md:text-5xl font-bold text-light max-w-2xl leading-tight font-alte-bold"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}

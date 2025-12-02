@@ -115,7 +115,7 @@ export default function Home() {
                   variants={itemVariants}
                 >
                   <motion.h2
-                    className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight text-center"
+                    className="text-4xl md:text-5xl font-bold text-secondary mb-6 text-center font-alte-bold"
                     variants={itemVariants}
                   >
                     Un espacio que amplifica, una herramienta que conecta.
@@ -132,7 +132,9 @@ export default function Home() {
                     </p>
                     <p>
                       <span className="font-bold text-secondary">
-                        <strong>IMPACTO</strong>
+                        <strong className="font-intranet-regular">
+                          IMPACTO
+                        </strong>
                       </span>{" "}
                       nace como una red digital que geolocaliza iniciativas,
                       conecta actores y amplifica el trabajo inclusivo.
@@ -142,7 +144,7 @@ export default function Home() {
                       familia, ningún proyecto y ninguna buena idea se quede
                       sola o invisible.
                     </p>
-                    <p className="text-secondary font-medium">
+                    <p className="text-secondary font-medium font-alte-bold">
                       Todavía estamos desarrollando la plataforma, pero la red
                       ya está creciendo.
                     </p>
@@ -163,16 +165,25 @@ export default function Home() {
                     Súmate dejando tu contacto.{" "}
                   </motion.p>
                   <motion.p className="text-dark mb-6" variants={itemVariants}>
-                    En <strong>IMPACTO</strong> buscamos{" "}
-                    <strong>familias y personas con discapacidad</strong> que
-                    necesiten recursos cercanos, <strong>profesionales</strong>{" "}
-                    que quieran aportar,{" "}
-                    <strong>proyectos y asociaciones</strong> que buscan
-                    visibilidad y alianzas, y{" "}
-                    <strong>empresas o fundaciones</strong> con RSC/ESG. Si te
-                    interesa conectar, aprender o colaborar, déjanos tu
-                    contacto: te avisaremos del lanzamiento, novedades y
-                    oportunidades para participar.
+                    En{" "}
+                    <strong className="font-intranet-regular">IMPACTO</strong>{" "}
+                    buscamos{" "}
+                    <span className="font-alte-bold ">
+                      familias y personas con discapacidad
+                    </span>{" "}
+                    que necesiten recursos cercanos,{" "}
+                    <span className="font-alte-bold">profesionales</span> que
+                    quieran aportar,{" "}
+                    <span className="font-alte-bold">
+                      proyectos y asociaciones
+                    </span>{" "}
+                    que buscan visibilidad y alianzas, y{" "}
+                    <span className="font-alte-bold">
+                      empresas o fundaciones
+                    </span>{" "}
+                    con RSC/ESG. Si te interesa conectar, aprender o colaborar,
+                    déjanos tu contacto: te avisaremos del lanzamiento,
+                    novedades y oportunidades para participar.
                   </motion.p>
                   {/* Formulario */}
                   <motion.div variants={itemVariants}>

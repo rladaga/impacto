@@ -213,7 +213,7 @@ export default function ContactForm() {
       animate="visible"
     >
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
           Nombre
         </label>
         <input
@@ -228,7 +228,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
           Email
         </label>
         <input
@@ -243,7 +243,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants} className="relative">
-        <label className="block text-dark text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
           Ciudad y País
         </label>
         <input
@@ -301,7 +301,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
           ¿Cómo quieres participar?
         </label>
         <select
@@ -330,7 +330,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1">
+        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
           Cuéntanos en una frase qué te trae aquí (opcional):
         </label>
         <textarea
@@ -349,7 +349,7 @@ export default function ContactForm() {
         variants={buttonVariants}
         whileHover="hover"
         whileTap="tap"
-        className="w-full bg-secondary text-white font-medium py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+        className="w-full bg-secondary text-white font-medium py-2 rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer font-alte-bold"
       >
         {loading ? "Enviando..." : "Quiero formar parte"}
       </motion.button>
@@ -359,7 +359,7 @@ export default function ContactForm() {
           variants={messageVariants}
           initial="hidden"
           animate="visible"
-          className={`text-md text-center ${
+          className={`text-md text-center font-alte-bold ${
             message.includes("Error") ? "text-red-600" : "text-green-600"
           }`}
         >
