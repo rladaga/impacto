@@ -9,6 +9,30 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Alte Haas Grotesk Regular";
+  src: url("/fonts/AlteHaasGroteskRegular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alte Haas Grotesk Bold";
+  src: url("/fonts/AlteHaasGroteskBold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IntraNet Regular";
+  src: url("/fonts/IntraNetRegular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -19,6 +43,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-intranet-regular: "IntraNet Regular", sans-serif;
+  --font-archia: "Archia", sans-serif;
+  --font-alte-bold: "Alte Haas Grotesk Bold", sans-serif;
 }
 
 @theme {
