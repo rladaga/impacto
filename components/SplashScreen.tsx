@@ -61,7 +61,9 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
           transition={{ duration: 0.5 }}
           className="absolute inset-0 flex items-center justify-center z-20"
         >
-          <ImpactoLogo />
+          <div className="w-[180px] md:w-auto transform md:scale-100">
+            <ImpactoLogo />
+          </div>
         </motion.div>
       )}
 
@@ -95,9 +97,9 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
           <motion.button
             onClick={onEnter}
             className="mt-12 px-10 py-4 bg-primary text-white text-lg font-semibold rounded-xl hover:shadow-[0_0_30px_rgba(62,100,255,0.6)] transition-all cursor-pointer border border-white/20 backdrop-blur-sm"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
+            transition={{ duration: 0.4 }}
             whileHover={{ scale: 1.05, backgroundColor: "#3250cc" }}
             whileTap={{ scale: 0.95 }}
           >

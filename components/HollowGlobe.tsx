@@ -128,13 +128,7 @@ export default function HollowGlobe({ onReady }: HollowGlobeProps) {
         pointerEvents: "none",
         opacity: isReady ? 1 : 0,
         transition: "opacity 1s ease-in",
-
-        // --- 3. MEZCLA CON EL FONDO ---
-        // Usamos 'normal' o 'screen' dependiendo de qué tanto quieras que se vea la textura a través.
-        // Con los colores nuevos, 'screen' debería verse genial.
         mixBlendMode: "screen",
-
-        // Filtro para quitarle la perfección digital 3D
         filter: "blur(2.5px) contrast(1.05)",
       }}
     />
