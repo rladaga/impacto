@@ -247,7 +247,7 @@ export default function Home() {
         <div className="flex gap-6 items-center">
           <button
             onClick={() => setActivePage("home")}
-            className={`text-sm font-medium transition-colors ${
+            className={`text-sm cursor-pointer font-medium transition-colors ${
               activePage === "home"
                 ? "text-light"
                 : "text-secondary hover:text-accent"
@@ -257,7 +257,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => setActivePage("projects")}
-            className={`text-sm font-medium transition-colors ${
+            className={`text-sm cursor-pointer font-medium transition-colors ${
               activePage === "projects"
                 ? "text-light"
                 : "text-secondary hover:text-accent"
