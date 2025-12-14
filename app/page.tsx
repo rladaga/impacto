@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import ImpactoLogoChico from "../components/ImpactoLogoChico";
+import ImpactoLogo from "../components/ImpactoLogo";
+import HeroSubtitleSection from "../components/HeroSubtitleSection";
+import InfoCardsSection from "@/components/InfoCardsSection";
+import InfoGridSection from "@/components/InfoGridSection";
 
 interface Project {
   id: number;
@@ -29,25 +32,6 @@ const API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "";
 
 let rtlPluginInitialized = false;
 
-async function geocodeAddress(
-  address: string
-): Promise<{ lng: number; lat: number } | null> {
-  try {
-    const response = await fetch("/api/geocoding", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ address }),
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Geocoding error:", error);
-    return { lng: 2.1728, lat: 41.3851 };
-  }
-}
-
 export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
@@ -58,7 +42,7 @@ export default function Home() {
   const [markers, setMarkers] = useState<
     Record<number, { marker: maplibregl.Marker; el: HTMLElement }>
   >({});
-  const [activePage, setActivePage] = useState<"home" | "projects">("home");
+
   const [loading, setLoading] = useState(true);
 
   const calculateDistance = (lat: number, lng: number): string => {
@@ -76,20 +60,7 @@ export default function Home() {
       const response = await fetch("/api/projects");
       if (response.ok) {
         const data = await response.json();
-
-        // Geocode each project address
-        const projectsWithCoords = await Promise.all(
-          data.map(async (project: Project) => {
-            const coords = await geocodeAddress(project.address);
-            return {
-              ...project,
-              lng: coords?.lng || 2.1728,
-              lat: coords?.lat || 41.3851,
-            };
-          })
-        );
-
-        setProjects(projectsWithCoords);
+        setProjects(data);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -126,13 +97,28 @@ export default function Home() {
           container: mapContainer.current!,
           style: updatedStyle,
           center: [2.1728, 41.3851],
-          zoom: 12,
-          minZoom: 11,
-          maxZoom: 20,
+          zoom: 4,
+          minZoom: -2,
+          maxZoom: 16,
+          scrollZoom: false,
+          cooperativeGestures: true,
           maxBounds: barcelonaBounds as maplibregl.LngLatBoundsLike,
         });
 
+        map.current.addControl(
+          new maplibregl.NavigationControl({ showCompass: false }),
+          "bottom-right"
+        );
+
         map.current.on("load", () => {
+          map.current?.fitBounds(
+            barcelonaBounds as maplibregl.LngLatBoundsLike,
+            {
+              padding: 50, // Un poco de margen en los bordes
+              animate: false, // Ajuste instantáneo al cargar
+            }
+          );
+
           const newMarkers: Record<
             number,
             { marker: maplibregl.Marker; el: HTMLElement }
@@ -145,24 +131,14 @@ export default function Home() {
             el.style.width = "16px";
             el.style.height = "16px";
             el.style.borderRadius = "50%";
-            el.style.backgroundColor = "white";
+            el.style.backgroundColor = "#D5D6DA";
             el.style.cursor = "pointer";
-            el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
+            /* el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
+            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))"; */
 
-            el.onmouseenter = () => {
-              el.style.filter =
-                "drop-shadow(0 0 25px rgba(139, 92, 246, 1)) brightness(1.2)";
-              el.style.boxShadow = "0 0 25px rgba(139, 92, 246, 1)";
-            };
+            el.onmouseenter = () => {};
 
-            el.onmouseleave = () => {
-              if (selectedProjectId !== project.id) {
-                el.style.filter =
-                  "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
-                el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-              }
-            };
+            el.onmouseleave = () => {};
 
             el.onclick = () => selectProject(project.id);
 
@@ -190,7 +166,7 @@ export default function Home() {
 
     setSelectedProjectId(projectId);
 
-    Object.entries(markers).forEach(([id, m]) => {
+    /* Object.entries(markers).forEach(([id, m]) => {
       if (id === projectId.toString()) {
         m.el.style.filter =
           "drop-shadow(0 0 35px rgba(59, 130, 246, 1)) brightness(1.5) saturate(1.2)";
@@ -199,7 +175,7 @@ export default function Home() {
         m.el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
         m.el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
       }
-    });
+    }); */
 
     if (map.current) {
       map.current.flyTo({
@@ -212,10 +188,10 @@ export default function Home() {
 
   const closeDetail = () => {
     setSelectedProjectId(null);
-    Object.values(markers).forEach((m) => {
+    /* Object.values(markers).forEach((m) => {
       m.el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))";
       m.el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-    });
+    }); */
 
     if (map.current) {
       map.current.flyTo({
@@ -229,114 +205,110 @@ export default function Home() {
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   return (
-    <div className="w-full h-screen bg-slate-900 overflow-hidden">
+    <div className="w-full min-h-screen bg-primary">
+      <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-8 shadow-lg">
+        {/* Placeholder Logo Izquierda */}
+        <div className="flex items-center w-40">
+          {/* Aquí controlas el tamaño del logo pasando width y height en className */}
+          <ImpactoLogo fill="#D5D6DA" className="w-32 h-auto" />
+        </div>
+
+        {/* Links Derecha */}
+        <div className="flex gap-8 items-center">
+          <a
+            href="#"
+            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+          >
+            ABOUT US
+          </a>
+          <a
+            href="#"
+            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+          >
+            GET INVOLVED
+          </a>
+          <a
+            href="#"
+            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+          >
+            TO THINK
+          </a>
+        </div>
+      </nav>
       {/* Map */}
-      <div ref={mapContainer} className="w-full h-full absolute inset-0" />
+      <section className="relative w-full h-screen pt-20">
+        <div ref={mapContainer} className="w-full h-full absolute inset-0" />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-8 left-8 z-20 w-20 h-20"
-      >
-        <ImpactoLogoChico initial="hidden" animate="visible" />
-      </motion.div>
-
-      {/* Navbar */}
-      <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-8 left-1/2 transform -translate-x-1/2 z-20 bg-primary backdrop-blur-md border border-secondary rounded-full px-6 py-3 shadow-lg"
-      >
-        <div className="flex gap-6 items-center">
-          <button
-            onClick={() => setActivePage("home")}
-            className={`text-sm cursor-pointer font-medium transition-colors ${
-              activePage === "home"
-                ? "text-light"
-                : "text-secondary hover:text-accent"
-            }`}
-          >
-            home
-          </button>
-          <button
-            onClick={() => setActivePage("projects")}
-            className={`text-sm cursor-pointer font-medium transition-colors ${
-              activePage === "projects"
-                ? "text-light"
-                : "text-secondary hover:text-accent"
-            }`}
-          >
-            projects
-          </button>
-        </div>
-      </motion.nav>
-
-      {/* Detail Panel */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-0 left-0 right-0 z-15 bg-linear-to-t from-slate-900/98 to-slate-900/95 border-t border-blue-500/20 backdrop-blur-md px-8 py-6 max-h-80 overflow-y-auto"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-white">
-                  {selectedProject.name}
-                </h2>
-                <p className="text-sm text-slate-400 mt-1">
-                  {selectedProject.project_type}
-                </p>
+        {/* Detail Panel */}
+        <AnimatePresence>
+          {selectedProject && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-0 left-0 right-0 z-15 bg-linear-to-t from-slate-900/98 to-slate-900/95 border-t border-blue-500/20 backdrop-blur-md px-8 py-6 max-h-80 overflow-y-auto"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">
+                    {selectedProject.name}
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {selectedProject.project_type}
+                  </p>
+                </div>
+                <button
+                  onClick={closeDetail}
+                  className="text-slate-400 hover:text-white hover:bg-blue-500/10 rounded-md p-2 transition-colors text-2xl font-light"
+                >
+                  ×
+                </button>
               </div>
-              <button
-                onClick={closeDetail}
-                className="text-slate-400 hover:text-white hover:bg-blue-500/10 rounded-md p-2 transition-colors text-2xl font-light"
-              >
-                ×
-              </button>
-            </div>
 
-            <div className="flex gap-4 mb-3 text-sm text-slate-400 flex-wrap">
-              <span>📍 {selectedProject.address}</span>
-              {selectedProject.lat && selectedProject.lng && (
-                <span>
-                  ~{calculateDistance(selectedProject.lat, selectedProject.lng)}{" "}
-                  km from center
-                </span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-              <div>
-                <p className="text-slate-500">Audiencia</p>
-                <p className="text-slate-300">{selectedProject.audience}</p>
+              <div className="flex gap-4 mb-3 text-sm text-slate-400 flex-wrap">
+                <span>📍 {selectedProject.address}</span>
+                {selectedProject.lat && selectedProject.lng && (
+                  <span>
+                    ~
+                    {calculateDistance(
+                      selectedProject.lat,
+                      selectedProject.lng
+                    )}{" "}
+                    km from center
+                  </span>
+                )}
               </div>
-              <div>
-                <p className="text-slate-500">Tipo de Discapacidad</p>
-                <p className="text-slate-300">
-                  {selectedProject.disability_type}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-slate-500">Contacto</p>
-                <p className="text-slate-300">{selectedProject.contact}</p>
-              </div>
-            </div>
 
-            <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-              {selectedProject.description}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+                <div>
+                  <p className="text-slate-500">Audiencia</p>
+                  <p className="text-slate-300">{selectedProject.audience}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Tipo de Discapacidad</p>
+                  <p className="text-slate-300">
+                    {selectedProject.disability_type}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-slate-500">Contacto</p>
+                  <p className="text-slate-300">{selectedProject.contact}</p>
+                </div>
+              </div>
 
-      {loading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="text-white text-lg">Cargando proyectos...</div>
-        </div>
-      )}
+              <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                {selectedProject.description}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      <HeroSubtitleSection />
+
+      <InfoCardsSection />
+
+      <InfoGridSection />
     </div>
   );
 }
