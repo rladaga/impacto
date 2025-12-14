@@ -7,12 +7,14 @@ interface LogoProps {
   variants?: Variants;
   initial?: string;
   animate?: string;
+  fill?: string;
 }
 
 export default function ImpactoLogo({
   variants,
   initial = "hidden",
   animate = "visible",
+  fill,
 }: LogoProps) {
   const [hoveredLetter, setHoveredLetter] = useState<string | null>(null);
 
@@ -108,7 +110,7 @@ export default function ImpactoLogo({
             }}
           >
             {letter.paths.map((path, pathIndex) => (
-              <path key={pathIndex} d={path.d} fill="#4A69FF" />
+              <path key={pathIndex} d={path.d} fill={fill || "#4A69FF"} />
             ))}
           </motion.g>
         ))}
