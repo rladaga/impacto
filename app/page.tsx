@@ -255,21 +255,21 @@ export default function Home() {
           <a
             href="#about-us"
             onClick={(e) => handleScroll(e, "about-us")}
-            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+            className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
             ABOUT US
           </a>
           <a
             href="#get-involved"
             onClick={(e) => handleScroll(e, "get-involved")}
-            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+            className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
             GET INVOLVED
           </a>
           <a
             href="#to-think"
             onClick={(e) => handleScroll(e, "to-think")}
-            className="text-sm text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+            className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
             TO THINK
           </a>
