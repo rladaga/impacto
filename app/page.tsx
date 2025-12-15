@@ -11,6 +11,7 @@ import InfoGridSection from "@/components/InfoGridSection";
 import ContributeSection from "@/components/ContributionSection";
 import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
+import SplashScreen from "@/components/SplashScreen";
 import Image from "next/image";
 
 interface Project {
@@ -36,7 +37,15 @@ const barcelonaBounds: [number, number][] = [
 
 const API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "";
 
-let rtlPluginInitialized = false;
+try {
+  maplibregl.setRTLTextPlugin(
+    "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
+    true
+  );
+} catch (e) {
+  // Plugin already initialized or error loading
+  console.warn("RTL text plugin initialization:", e);
+}
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -67,6 +76,8 @@ export default function Home() {
     Record<number, { marker: maplibregl.Marker; el: HTMLElement }>
   >({});
 
+  const [showSplash, setShowSplash] = useState(true);
+
   const [[page, direction], setPage] = useState([0, 0]);
 
   const fetchProjects = async () => {
@@ -90,15 +101,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!mapContainer.current || projects.length === 0) return;
-
-    // Set RTL text plugin only once
-    if (!rtlPluginInitialized) {
-      maplibregl.setRTLTextPlugin(
-        "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
-        true
-      );
-      rtlPluginInitialized = true;
-    }
 
     // Initialize map
     fetch("/map_style.json")
@@ -243,6 +245,9 @@ export default function Home() {
 
   return (
     <div id="top" className="w-full min-h-screen bg-primary">
+      <AnimatePresence>
+        {showSplash && <SplashScreen onEnter={() => setShowSplash(false)} />}
+      </AnimatePresence>
       <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-8 shadow-lg">
         <a
           href="#top"
