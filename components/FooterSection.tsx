@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "motion/react";
 import ImpactoLogoChico from "./ImpactoLogoChico";
 
@@ -48,34 +49,35 @@ export default function FooterSection() {
             Tu apoyo marca la diferencia en la vida de muchas personas
           </motion.p>
 
-          <motion.button
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            viewport={{ once: true }}
-            // CAMBIO AQUÍ: text-primary por text-light
-            className="group h-9 bg-secondary hover:bg-light text-light hover:text-secondary font-alte-bold text-xs md:text-[16px] px-6 rounded-full flex items-center gap-2 transition-colors shadow-lg cursor-pointer uppercase "
-          >
-            SE PARTE
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="transition-colors"
+          <Link href="/contact">
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              viewport={{ once: true }}
+              className="group h-9 bg-secondary hover:bg-light text-light hover:text-secondary font-alte-bold text-xs md:text-[16px] px-6 rounded-full flex items-center gap-2 transition-colors shadow-lg cursor-pointer uppercase "
             >
-              <path
-                d="M1 13L13 1M13 1H5M13 1V9"
-                className="stroke-primary group-hover:stroke-secondary"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </motion.button>
+              SE PARTE
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="transition-colors"
+              >
+                <path
+                  d="M1 13L13 1M13 1H5M13 1V9"
+                  className="stroke-primary group-hover:stroke-secondary"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </motion.button>
+          </Link>
         </div>
 
         {/* --- PIE DE PÁGINA (LINKS) --- */}
@@ -122,7 +124,10 @@ export default function FooterSection() {
               >
                 CREW.IMPACTO@GMAIL.COM
               </a>
-              <a href="#" className="hover:text-accent transition-colors">
+              <a
+                href="/contact"
+                className="hover:text-accent transition-colors"
+              >
                 APPLY HERE
               </a>
             </div>

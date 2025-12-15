@@ -1,4 +1,3 @@
-// components/SplashScreen.tsx
 "use client";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
@@ -19,91 +18,68 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden bg-black"
+      className="fixed inset-0 z-9999 overflow-hidden bg-black"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.8 }}
+      exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
     >
-      {/* CAPA 1: EL FONDO (TEXTURA)
-        Ponemos la textura al fondo.
-      */}
+      {/* --- CAPA 1: FONDO GRADIENTE + RUIDO --- */}
+
+      <div className="absolute inset-0 z-0 bg-linear-to-t from-[#2D2C67] to-[#050510]" />
+
+      {/* 2. Textura de Ruido (Noise) generada con SVG para evitar archivos externos */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none mix-blend-overlay"
         style={{
-          backgroundImage: "url('/Textura-2.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* CAPA 2: EL GLOBO
-        Se renderiza ENCIMA de la textura. 
-        Gracias al `mixBlendMode: "screen"` en HollowGlobe.tsx, 
-        el negro del globo se vuelve transparente y solo queda la luz azul.
-      */}
+      {/* --- CAPA 2: GLOBO 3D (CENTRADO EXACTO) --- */}
       {isClient && (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
-          <div className="w-full h-full md:h-[80%]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+          <div
+            className="w-[80vw] h-[80vw] md:w-[700px] md:h-[700px] transition-opacity duration-1000 ease-out"
+            style={{ opacity: globeReady ? 1 : 0 }}
+          >
             <HollowGlobe onReady={setGlobeReady} />
           </div>
         </div>
       )}
 
-      {/* CAPA 3: VIGNETTE (Opcional)
-         Un degradado sutil para oscurecer las esquinas y centrar la atención
-      */}
-      <div className="absolute inset-0 z-10 bg-radial-gradient from-transparent via-transparent to-black/60 pointer-events-none" />
-
-      {/* CAPA 4: CONTENIDO UI */}
+      {/* --- CAPA DE CARGA (Placeholder mientras carga el globo) --- */}
       {!globeReady && (
-        <motion.div
-          animate={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute inset-0 flex items-center justify-center z-20"
-        >
-          <div className="w-[180px] md:w-auto transform md:scale-100">
-            <ImpactoLogo />
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="w-[200px] animate-pulse opacity-30">
+            <ImpactoLogo fill="#FFFFFF" />
           </div>
-        </motion.div>
+        </div>
       )}
 
+      {/* --- CAPA 3: UI (LOGO Y BOTÓN) --- */}
+
       {globeReady && (
-        <div className="text-center space-y-8 relative z-30 px-4 mt-10">
-          <motion.p
-            className="text-light font-medium text-sm md:text-lg inline-block px-6 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Estamos preparando algo grande
-          </motion.p>
-
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center">
+          {/* LOGO IMPACTO */}
           <motion.div
-            className="w-24 h-1 bg-primary mx-auto rounded-full"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          />
-
-          <motion.h1
-            className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg max-w-4xl leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="w-[280px] md:w-[620px] mb-6"
           >
-            Somos el punto donde la necesidad encuentra la oportunidad.
-          </motion.h1>
+            <ImpactoLogo fill="#FFFFFF" />
+          </motion.div>
 
+          {/* BOTÓN "COMENZAR" */}
           <motion.button
             onClick={onEnter}
-            className="mt-12 px-10 py-4 bg-primary text-white text-lg font-semibold rounded-xl hover:shadow-[0_0_30px_rgba(62,100,255,0.6)] transition-all cursor-pointer border border-white/20 backdrop-blur-sm"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            whileHover={{ scale: 1.05, backgroundColor: "#3250cc" }}
+            transition={{ duration: 0.2 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            className="bg-white text-[#2D2C67] px-8 py-2 rounded-full text-[11px] md:text-lg hover:text-xl font-alte-bold  uppercase transition-all cursor-pointer z-40 pointer-events-auto"
           >
-            Entrar
+            COMENZAR
           </motion.button>
         </div>
       )}
