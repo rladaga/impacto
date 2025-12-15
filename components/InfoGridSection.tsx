@@ -46,7 +46,11 @@ export default function InfoGridSection() {
 
               {/* Puntos separadores (Solo si no es el último elemento) */}
               {index !== infoItems.length - 1 && (
-                <div className="w-5 h-5 bg-[#4A69FF] rounded-full mt-12" />
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="w-5 h-5 bg-[#4A69FF] rounded-full mt-12 cursor-pointer  hover:shadow-[#4A69FF]"
+                />
               )}
             </motion.div>
           ))}
@@ -64,12 +68,19 @@ export default function InfoGridSection() {
         />
 
         {/* Logo Superpuesto (Gente conectada) */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            whileHover={{ scale: 1.1 }}
+            transition={{
+              duration: 0.6,
+              type: "spring",
+              stiffness: 400,
+              damping: 10,
+            }}
             viewport={{ once: true }}
+            className="cursor-pointer pointer-events-auto"
           >
             <Image
               src="/logos/icono-personas.png"

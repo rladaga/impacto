@@ -8,6 +8,7 @@ interface LogoProps {
   initial?: string;
   animate?: string;
   fill?: string;
+  className?: string;
 }
 
 export default function ImpactoLogo({

@@ -30,7 +30,10 @@ const cardsData = [
 
 export default function InfoCardsSection() {
   return (
-    <section className="relative z-10 bg-[#2D2C67] w-full py-40 px-4 md:px-8 overflow-hidden">
+    <section
+      id="about-us"
+      className="relative z-10 bg-[#2D2C67] w-full py-40 px-4 md:px-8 overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto flex flex-col gap-32">
         {cardsData.map((card, index) => (
           <motion.div
