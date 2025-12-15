@@ -98,10 +98,18 @@ export default function FooterSection() {
 
             <div className="flex flex-col gap-3">
               <h4 className="font-alte-bold text-[#4A69FF] ">LET'S TALK</h4>
-              <a href="#" className="hover:text-accent transition-colors">
+              <a
+                href="https://www.linkedin.com/company/makeimpacto/"
+                target="_blank"
+                className="hover:text-accent transition-colors"
+              >
                 LINKEDIN
               </a>
-              <a href="#" className="hover:text-accent transition-colors">
+              <a
+                href="https://www.instagram.com/make.impacto/"
+                target="_blank"
+                className="hover:text-accent transition-colors"
+              >
                 INSTAGRAM
               </a>
             </div>
