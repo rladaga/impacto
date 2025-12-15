@@ -3,10 +3,10 @@
 import { motion } from "motion/react";
 
 const actions = [
-  { label: "DONAR", href: "#" },
-  { label: "VOLUNTARIADO DIGITAL", href: "#" },
-  { label: "SE SOCIO", href: "#" },
-  { label: "PATROCINIO Y ALIANZAS", href: "#" },
+  { label: "DONAR", href: "/contact?type=donar" },
+  { label: "VOLUNTARIADO DIGITAL", href: "/contact?type=voluntariado" },
+  { label: "SE SOCIO", href: "/contact?type=socio" },
+  { label: "PATROCINIO Y ALIANZAS", href: "/contact?type=patrocinio" },
 ];
 
 export default function ContributeSection() {

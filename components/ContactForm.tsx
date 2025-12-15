@@ -9,7 +9,13 @@ interface CityResult {
   countryName: string;
 }
 
-export default function ContactForm() {
+interface ContactFormProps {
+  defaultParticipation?: string;
+}
+
+export default function ContactForm({
+  defaultParticipation = "voluntariado",
+}: ContactFormProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,7 +29,7 @@ export default function ContactForm() {
     email: "",
     location: "",
     message: "",
-    interested_in: "familia/persona",
+    interested_in: defaultParticipation,
   });
 
   useEffect(() => {
@@ -151,7 +157,7 @@ export default function ContactForm() {
           email: "",
           location: "",
           message: "",
-          interested_in: "familia/persona",
+          interested_in: defaultParticipation,
         });
         setSearchQuery("");
       } else {
@@ -213,7 +219,7 @@ export default function ContactForm() {
       animate="visible"
     >
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
+        <label className="block text-light text-md font-medium mb-1 font-alte-bold">
           Nombre
         </label>
         <input
@@ -223,12 +229,12 @@ export default function ContactForm() {
           onChange={handleChange}
           placeholder="Tu nombre y apellido"
           required
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+          className="w-full px-4 py-2 border text-light border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
+        <label className="block text-light text-md font-medium mb-1 font-alte-bold">
           Email
         </label>
         <input
@@ -238,12 +244,12 @@ export default function ContactForm() {
           onChange={handleChange}
           placeholder="Tu correo de contacto"
           required
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+          className="w-full px-4 py-2 border text-light border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
       </motion.div>
 
       <motion.div variants={itemVariants} className="relative">
-        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
+        <label className="block text-light text-md font-medium mb-1 font-alte-bold">
           Ciudad y País
         </label>
         <input
@@ -254,7 +260,7 @@ export default function ContactForm() {
           required
           autoComplete="on"
           onFocus={() => searchQuery.length >= 2 && setShowDropdown(true)}
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+          className="w-full px-4 py-2 border text-light border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
 
         {searching && searchQuery.length >= 2 && (
@@ -301,7 +307,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
+        <label className="block text-light text-md font-medium mb-1 font-alte-bold">
           ¿Cómo quieres participar?
         </label>
         <select
@@ -309,8 +315,20 @@ export default function ContactForm() {
           value={formData.interested_in}
           required
           onChange={handleChange}
-          className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+          className="w-full text-light px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
         >
+          <option className="text-black" value="voluntariado">
+            Voluntariado
+          </option>
+          <option className="text-black" value="donar">
+            Donar
+          </option>
+          <option className="text-black" value="socio">
+            Socio
+          </option>
+          <option className="text-black" value="patrocinio">
+            Patrocinio y Alianzas
+          </option>
           <option className="text-black" value="familia/persona">
             Familia/Persona
           </option>
@@ -330,7 +348,7 @@ export default function ContactForm() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <label className="block text-dark text-md font-medium mb-1 font-alte-bold">
+        <label className="block text-light text-md font-medium mb-1 font-alte-bold">
           Cuéntanos en una frase qué te trae aquí (opcional):
         </label>
         <textarea
@@ -339,7 +357,7 @@ export default function ContactForm() {
           onChange={handleChange}
           placeholder="Esto nos ayuda a conectar mejor contigo."
           rows={4}
-          className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+          className="w-full px-4 py-2 border text-light border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
         />
       </motion.div>
 
