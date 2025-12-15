@@ -12,7 +12,6 @@ import {
   flexRender,
   ColumnDef,
 } from "@tanstack/react-table";
-import { create } from "domain";
 
 interface Contact {
   id: string;
@@ -34,6 +33,10 @@ interface Project {
   address: string;
   contact: string;
   created_at?: string;
+  lng?: string;
+  lat?: string;
+  activities?: string;
+  public_type?: string;
 }
 
 export default function AdminPage() {
@@ -159,9 +162,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     description: "",
     address: "",
     contact: "",
+    lng: "",
+    lat: "",
+    activities: "",
+    public_type: "",
   });
-
-  const supabase = createClient();
 
   useEffect(() => {
     fetchData();
@@ -266,6 +271,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       description: project.description,
       address: project.address,
       contact: project.contact,
+      lng: project.lng || "",
+      lat: project.lat || "",
+      activities: project.activities || "",
+      public_type: project.public_type || "",
     });
     setShowProjectModal(true);
   };
@@ -279,6 +288,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       description: "",
       address: "",
       contact: "",
+      lng: "",
+      lat: "",
+      activities: "",
+      public_type: "",
     });
     setEditingProject(null);
   };
@@ -347,6 +360,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         accessorKey: "contact",
         header: "Contacto",
       },
+      { accessorKey: "lng", header: "Longitud" },
+      { accessorKey: "lat", header: "Latitud" },
+      { accessorKey: "activities", header: "Actividades" },
+      { accessorKey: "public_type", header: "Tipo de Público" },
       {
         id: "actions",
         header: "Acciones",
@@ -944,6 +961,62 @@ function ProjectModal({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark resize-none"
               rows={4}
               required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Longitud
+            </label>
+            <input
+              type="text"
+              value={formData.lng}
+              onChange={(e) =>
+                setFormData({ ...formData, lng: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Latitud
+            </label>
+            <input
+              type="text"
+              value={formData.lat}
+              onChange={(e) =>
+                setFormData({ ...formData, lat: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Actividades
+            </label>
+            <input
+              type="text"
+              value={formData.activities}
+              onChange={(e) =>
+                setFormData({ ...formData, activities: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Tipo de Público
+            </label>
+            <input
+              type="text"
+              value={formData.public_type}
+              onChange={(e) =>
+                setFormData({ ...formData, public_type: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
             />
           </div>
 
