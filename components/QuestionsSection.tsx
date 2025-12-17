@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useState } from "react";
 
 export default function QuestionsSection() {
+  const [isHoveringLeft, setIsHoveringLeft] = useState(false);
+  const [isHoveringRight, setIsHoveringRight] = useState(false);
+
   return (
     <section
       id="to-think"
@@ -91,17 +95,23 @@ export default function QuestionsSection() {
           whileInView={{ opacity: 1, x: 0, rotate: 6 }}
           transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
           viewport={{ once: true }}
+          onHoverStart={() => setIsHoveringLeft(true)}
+          onHoverEnd={() => setIsHoveringLeft(false)}
           className="z-10 md:mr-[-15px]"
         >
           <div className="w-[459.95px] h-[337.93px] bg-primary rounded-[3rem] p-8 flex flex-col items-center justify-center text-center shadow-2xl">
-            <div className="mb-2 relative w-[120px] h-[120px] shrink-0">
+            <motion.div
+              className="mb-2 relative w-[120px] h-[120px] shrink-0"
+              animate={isHoveringLeft ? { rotate: 360 } : { rotate: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
               <Image
                 src="/logos/icono-pregunta-1.png"
                 alt="Icono Entrada"
                 fill
                 className="object-contain"
               />
-            </div>
+            </motion.div>
 
             <h3 className="font-alte-bold text-light text-xl md:text-xl leading-snug tracking-wide uppercase mb-2">
               ¿CÓMO PODEMOS ASEGURARNOS DE QUE EL ACCESO A OPORTUNIDADES NO
@@ -116,17 +126,23 @@ export default function QuestionsSection() {
           whileInView={{ opacity: 1, x: 0, rotate: -6 }}
           transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
           viewport={{ once: true }}
+          onHoverStart={() => setIsHoveringRight(true)}
+          onHoverEnd={() => setIsHoveringRight(false)}
           className="z-0 md:ml-[-15px]"
         >
           <div className="w-[459.95px] h-[337.93px] bg-secondary rounded-[3rem] p-8 flex flex-col items-center justify-center text-center shadow-2xl">
-            <div className="mb-2 relative w-[120px] h-[120px] shrink-0">
+            <motion.div
+              className="mb-2 relative w-[120px] h-[120px] shrink-0"
+              animate={isHoveringRight ? { rotate: 360 } : { rotate: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
               <Image
                 src="/logos/icono-pregunta.png"
                 alt="Icono Pregunta"
                 fill
                 className="object-contain"
               />
-            </div>
+            </motion.div>
 
             <h3 className="font-alte-bold text-light text-xl md:text-xl leading-snug tracking-wide uppercase relative mb-2">
               <span className="relative z-10">¿QUÉ IMPACTO TENDRÍA EN TU </span>

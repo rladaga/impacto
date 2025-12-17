@@ -10,6 +10,7 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onEnter }: SplashScreenProps) {
   const [globeReady, setGlobeReady] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -37,17 +38,21 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
       {/* --- CAPA 2: GLOBO 3D (CENTRADO EXACTO) --- */}
       {isClient && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <div
-            className="w-[80vw] h-[80vw] md:w-[700px] md:h-[700px] transition-opacity duration-1000 ease-out"
-            style={{ opacity: globeReady ? 1 : 0 }}
+          <video
+            autoPlay
+            muted
+            loop
+            onCanPlayThrough={() => setVideoReady(true)}
+            className="w-screen h-screen md:w-screen md:h-screen transition-opacity duration-1000 ease-out object-cover"
+            style={{ opacity: videoReady ? 1 : 0 }}
           >
-            <HollowGlobe onReady={setGlobeReady} />
-          </div>
+            <source src="/videos/Impacto-mundo.mp4" type="video/mp4" />
+          </video>
         </div>
       )}
 
       {/* --- CAPA DE CARGA (Placeholder mientras carga el globo) --- */}
-      {!globeReady && (
+      {!videoReady && (
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="w-[200px] animate-pulse opacity-30">
             <ImpactoLogo fill="#FFFFFF" />
@@ -57,7 +62,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
 
       {/* --- CAPA 3: UI (LOGO Y BOTÓN) --- */}
 
-      {globeReady && (
+      {videoReady && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center">
           {/* LOGO IMPACTO */}
           <motion.div
