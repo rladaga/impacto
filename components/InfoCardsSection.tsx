@@ -9,21 +9,21 @@ const cardsData = [
     id: 1,
     title: "¿QUÉ?",
     text: "IMPACTO ES UNA PLATAFORMA DIGITAL QUE CENTRALIZA Y ORGANIZA INFORMACIÓN SOBRE PROYECTOS INCLUSIVOS EN DISTINTOS PAÍSES. A TRAVÉS DE UN MAPA INTERACTIVO, CONTENIDO EDUCATIVO Y ESPACIOS DE CONEXIÓN, AYUDAMOS A QUE CADA INICIATIVA CREZCA Y TENGA EL IMPACTO QUE MERECE.",
-    imageSrc: "/images/image-what.png",
+    imageSrc: "/images/image-what.jpg",
     align: "left",
   },
   {
     id: 2,
     title: "¿POR QUÉ?",
     text: "CREEMOS QUE LA VISIBILIDAD NO DEBERÍA SER UN PRIVILEGIO. EXISTEN MILES DE PROYECTOS INCLUSIVOS TRANSFORMANDO VIDAS, PERO MUCHOS PERMANECEN INVISIBLES, DESCONECTADOS ENTRE SÍ Y SIN ACCESO A LOS RECURSOS QUE PODRÍAN POTENCIAR SU IMPACTO. IMPACTO NACE PARA CAMBIAR ESO. QUEREMOS CONSTRUIR UN MUNDO DONDE LAS INICIATIVAS INCLUSIVAS NO TENGAN QUE LUCHAR POR SER VISTAS, SINO QUE SEAN RECONOCIDAS, APOYADAS Y MULTIPLICADAS.",
-    imageSrc: "/images/image-why.png",
+    imageSrc: "/images/image-why.jpg",
     align: "right",
   },
   {
     id: 3,
     title: "¿CÓMO?",
     text: "LO HACEMOS SIMPLIFICANDO EL ACCESO A LA INFORMACIÓN Y CONSTRUYENDO PUENTES ENTRE INICIATIVAS INCLUSIVAS Y QUIENES PUEDEN APOYARLAS. USAMOS HERRAMIENTAS DIGITALES INTUITIVAS, UN LENGUAJE ACCESIBLE Y UNA RED COLABORATIVA PARA QUE ESTOS PROYECTOS SEAN MÁS VISIBLES Y SOSTENIBLES.",
-    imageSrc: "/images/image-how.png",
+    imageSrc: "/images/image-how.jpg",
     align: "left",
   },
 ];
@@ -32,7 +32,7 @@ export default function InfoCardsSection() {
   return (
     <section
       id="about-us"
-      className="relative z-10 bg-[#2D2C67] w-full py-40 px-4 md:px-8 overflow-hidden"
+      className="relative z-10 bg-[#2D2C67] w-full py-40 px-4 md:px-4 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto flex flex-col gap-32">
         {cardsData.map((card, index) => (
@@ -56,15 +56,31 @@ export default function InfoCardsSection() {
               `}
             >
               {/* COLUMNA IMAGEN */}
-              {/* Ajuste: Mantenemos las dimensiones fijas que pediste */}
-              <div className="w-full md:w-5/12 h-[644px] md:-my-12 px-6 md:px-10 py-6 md:py-0 z-20 shrink-0 flex justify-center">
-                <TiltedCard className="w-full h-full flex justify-center">
-                  <div className="relative w-[466px] h-[644px] rounded-[20px] overflow-hidden">
+              <div
+                className={`w-full md:w-5/12 h-[570px] md:-my-12 px-6 py-6 md:py-0 z-20 shrink-0 flex 
+                  ${
+                    card.align === "right"
+                      ? "md:justify-start"
+                      : "md:justify-end"
+                  }
+                  ${card.align === "right" ? "pr-10 pl-0" : "pl-10 pr-0"}
+                  `}
+              >
+                <TiltedCard className="w-full h-full flex justify-center rounded-[40px] overflow-hidden">
+                  <div className="relative w-[380px] h-[565px] rounded-[40px] overflow-hidden">
                     <Image
                       src={card.imageSrc}
                       alt={card.title}
                       fill
-                      className="object-cover opacity-100"
+                      className="object-cover grayscale"
+                    />
+                    <div className="absolute inset-0 z-10 bg-white opacity-40 mix-blend-normal" />
+                    <div className="absolute inset-0 z-10 bg-linear-to-t from-light to-secondary mix-blend-multiply opacity-90" />
+                    <div
+                      className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none mix-blend-overlay"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
+                      }}
                     />
                   </div>
                 </TiltedCard>
