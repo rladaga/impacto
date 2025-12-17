@@ -62,6 +62,11 @@ export async function POST(request: NextRequest) {
       description,
       address,
       contact,
+      lng,
+      lat,
+      activities,
+      public_type,
+      image_url,
     } = body;
 
     if (!name) {
@@ -90,6 +95,11 @@ export async function POST(request: NextRequest) {
           description,
           address,
           contact,
+          lng,
+          lat,
+          activities,
+          public_type,
+          image_url,
         },
       ])
       .select();
@@ -121,6 +131,11 @@ export async function PUT(request: NextRequest) {
       description,
       address,
       contact,
+      lng,
+      lat,
+      activities,
+      public_type,
+      image_url,
     } = body;
 
     if (!id) {
@@ -139,6 +154,11 @@ export async function PUT(request: NextRequest) {
         description,
         address,
         contact,
+        lng,
+        lat,
+        activities,
+        public_type,
+        image_url,
       })
       .eq("id", id)
       .select();

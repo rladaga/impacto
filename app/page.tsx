@@ -27,6 +27,7 @@ interface Project {
   updated_at?: string;
   lng?: number;
   lat?: number;
+  image_url?: string;
   image?: string;
 }
 
@@ -80,6 +81,8 @@ export default function Home() {
 
   const [[page, direction], setPage] = useState([0, 0]);
 
+  const imagesLoadedRef = useRef(false);
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -87,6 +90,7 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
+        imagesLoadedRef.current = false; // Reset cuando cargan proyectos nuevos
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -95,14 +99,60 @@ export default function Home() {
     }
   };
 
+  // Función separada para cargar imágenes en background
+  const fetchProjectImages = async (projectsToUpdate: Project[]) => {
+    if (imagesLoadedRef.current) return; // Evitar cargar imágenes múltiples veces
+
+    const updatedProjects = await Promise.all(
+      projectsToUpdate.map(async (project) => {
+        if (project.image_url && !project.image) {
+          try {
+            const imageResponse = await fetch("/api/proxy-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: project.image_url }),
+            });
+
+            if (imageResponse.ok) {
+              const blob = await imageResponse.blob();
+              const imageUrl = URL.createObjectURL(blob);
+              return { ...project, image: imageUrl };
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching image for project ${project.id}:`,
+              error
+            );
+          }
+        }
+        return project;
+      })
+    );
+
+    imagesLoadedRef.current = true;
+    setProjects(updatedProjects);
+  };
+
   useEffect(() => {
     fetchProjects();
   }, []);
 
   useEffect(() => {
+    if (projects.length > 0 && !imagesLoadedRef.current) {
+      const timer = setTimeout(() => {
+        fetchProjectImages(projects);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [projects.length]);
+
+  useEffect(() => {
     if (!mapContainer.current || projects.length === 0) return;
 
-    // Initialize map
+    // Verificar si el mapa ya existe
+    if (map.current) return;
+
+    // Initialize map solo una vez
     fetch("/map_style.json")
       .then((res) => res.json())
       .then((style) => {
@@ -133,7 +183,7 @@ export default function Home() {
             barcelonaBounds as maplibregl.LngLatBoundsLike,
             {
               padding: { top: 100, bottom: 50, left: 50, right: 50 },
-              animate: false, // Ajuste instantáneo al cargar
+              animate: false,
             }
           );
 
@@ -151,12 +201,6 @@ export default function Home() {
             el.style.borderRadius = "50%";
             el.style.backgroundColor = "#D5D6DA";
             el.style.cursor = "pointer";
-            /* el.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.8)";
-            el.style.filter = "drop-shadow(0 0 20px rgba(139, 92, 246, 0.8))"; */
-
-            el.onmouseenter = () => {};
-
-            el.onmouseleave = () => {};
 
             el.onclick = () => selectProject(project.id);
 
@@ -172,11 +216,9 @@ export default function Home() {
       });
 
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      // Limpiar solo al desmontar el componente
     };
-  }, [projects]);
+  }, [projects.length]);
 
   useEffect(() => {
     if (!map.current || !selectedProjectId) return;
@@ -281,7 +323,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* MAPA */}
       <section className="relative w-full h-screen pt-20">
         <div ref={mapContainer} className="w-full h-full absolute inset-0" />
         <AnimatePresence>
@@ -385,7 +426,7 @@ export default function Home() {
                               src={selectedProject.image}
                               alt={selectedProject.name}
                               fill
-                              className="object-cover"
+                              className="object-cover grayscale"
                             />
                           ) : (
                             <div className="w-full h-full bg-light flex items-center justify-center text-white/50 font-alte-bold tracking-widest">
@@ -393,6 +434,14 @@ export default function Home() {
                             </div>
                           )}
                           {/* Filtro azulado sobre la imagen */}
+                          <div className="absolute inset-0 z-10 bg-white opacity-40 mix-blend-normal" />
+                          <div className="absolute inset-0 z-10 bg-linear-to-t from-light to-secondary mix-blend-multiply opacity-90" />
+                          <div
+                            className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none mix-blend-overlay"
+                            style={{
+                              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
+                            }}
+                          />
                         </div>
 
                         {/* TÍTULO Y DECORACIÓN  */}
