@@ -1,4 +1,3 @@
-// app/api/proxy-image/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +13,11 @@ export async function POST(request: NextRequest) {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
-    });
+      // Ignorar errores de certificado SSL en desarrollo
+      ...(process.env.NODE_ENV === "development" && {
+        rejectUnauthorized: false,
+      }),
+    } as any);
 
     if (!imageResponse.ok) {
       return NextResponse.json(
