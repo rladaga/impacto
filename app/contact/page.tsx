@@ -44,7 +44,7 @@ function ContactContent() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 text-center"
+          className="mt-12 grid grid-cols-1 md:grid-cols-1 gap-8 text-center"
         >
           <div>
             <h3 className="text-xl font-alte-bold text-light mb-2">
@@ -52,19 +52,6 @@ function ContactContent() {
             </h3>
             <p className="text-accent">
               Tus datos son seguros y no serán compartidos
-            </p>
-          </div>
-          <div>
-            <h3 className="text-xl font-alte-bold text-light mb-2">
-              Múltiples Formas
-            </h3>
-            <p className="text-accent">
-              Puedes participar de varias maneras en{" "}
-              <ImpactoLogo
-                fill="#D5D6DA"
-                className="inline w-20 h-auto -mt-1"
-              />
-              .
             </p>
           </div>
         </motion.div>
