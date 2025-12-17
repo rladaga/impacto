@@ -69,3 +69,14 @@ body {
   color: var(--foreground);
   font-family: "Alte Haas Grotesk Regular", Arial, Helvetica, sans-serif;
 }
+
+.maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  text-align: center;
+}
+
+.maplibregl-popup-tip {
+  display: none;
+}
