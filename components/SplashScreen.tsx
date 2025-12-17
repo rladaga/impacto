@@ -1,14 +1,17 @@
 "use client";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
-import HollowGlobe from "./HollowGlobe";
 import ImpactoLogo from "./ImpactoLogo";
 
 interface SplashScreenProps {
   onEnter: () => void;
+  isMapReady?: boolean;
 }
 
-export default function SplashScreen({ onEnter }: SplashScreenProps) {
+export default function SplashScreen({
+  onEnter,
+  isMapReady,
+}: SplashScreenProps) {
   const [globeReady, setGlobeReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -76,13 +79,24 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
 
           {/* BOTÓN "COMENZAR" */}
           <motion.button
-            onClick={onEnter}
+            onClick={() => {
+              if (isMapReady) onEnter();
+            }}
+            disabled={!isMapReady}
             initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-white text-[#2D2C67] px-8 py-2 rounded-full text-[11px] md:text-lg hover:text-xl font-alte-bold  uppercase transition-all cursor-pointer z-40 pointer-events-auto"
+            className={`
+               px-8 py-2 rounded-full text-[11px] md:text-lg font-alte-bold uppercase transition-all z-40
+               ${
+                 isMapReady
+                   ? "bg-white text-[#2D2C67] hover:text-xl cursor-pointer pointer-events-auto"
+                   : "bg-white/50 text-white/80 cursor-wait pointer-events-none" // Estilo "Cargando"
+               }
+            `}
+            // Animaciones de hover solo si está listo
+            whileHover={isMapReady ? { scale: 1.05 } : {}}
+            whileTap={isMapReady ? { scale: 0.95 } : {}}
           >
             COMENZAR
           </motion.button>

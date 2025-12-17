@@ -38,16 +38,6 @@ const barcelonaBounds: [number, number][] = [
 
 const API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "";
 
-try {
-  maplibregl.setRTLTextPlugin(
-    "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
-    true
-  );
-} catch (e) {
-  // Plugin already initialized or error loading
-  console.warn("RTL text plugin initialization:", e);
-}
-
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 1000 : -1000,
@@ -67,6 +57,7 @@ const slideVariants = {
 
 export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const hoverPopup = useRef<maplibregl.Popup | null>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
@@ -78,6 +69,7 @@ export default function Home() {
   >({});
 
   const [showSplash, setShowSplash] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -152,6 +144,18 @@ export default function Home() {
     // Verificar si el mapa ya existe
     if (map.current) return;
 
+    // Inicializar RTL plugin solo en cliente
+    if (typeof window !== "undefined") {
+      try {
+        maplibregl.setRTLTextPlugin(
+          "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
+          true
+        );
+      } catch (e) {
+        console.warn("RTL text plugin initialization:", e);
+      }
+    }
+
     // Initialize map solo una vez
     fetch("/map_style.json")
       .then((res) => res.json())
@@ -178,7 +182,84 @@ export default function Home() {
           "bottom-right"
         );
 
+        if (!hoverPopup.current) {
+          hoverPopup.current = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 15, // Distancia vertical desde el punto
+            className: "custom-popup", // Clase opcional para estilos CSS globales
+          });
+        }
+
         map.current.on("load", () => {
+          const geojson = {
+            type: "FeatureCollection",
+            features: projects
+              .filter((p) => p.lng && p.lat)
+              .map((p) => ({
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [p.lng, p.lat],
+                },
+                properties: {
+                  id: p.id,
+                  name: p.name,
+                },
+              })),
+          };
+
+          map.current?.addSource("projects-source", {
+            type: "geojson",
+            data: geojson as any,
+          });
+
+          map.current?.addLayer({
+            id: "projects-circles",
+            type: "circle",
+            source: "projects-source",
+            paint: {
+              "circle-radius": 8,
+              "circle-color": "#D5D6DA",
+            },
+          });
+
+          map.current?.on("click", "projects-circles", (e) => {
+            if (e.features && e.features[0].properties) {
+              const projectId = e.features[0].properties.id;
+              selectProject(projectId);
+            }
+          });
+
+          map.current?.on("mouseenter", "projects-circles", (e) => {
+            if (!map.current) return;
+
+            map.current.getCanvas().style.cursor = "pointer";
+
+            const coordinates = (
+              e.features![0].geometry as any
+            ).coordinates.slice();
+            const name = e.features![0].properties?.name;
+
+            if (hoverPopup.current) {
+              hoverPopup.current
+                .setLngLat(coordinates)
+                .setHTML(
+                  `<div class="text-[#2D2C67] font-alte-bold text-sm px-2 py-1">
+                            ${name.toUpperCase()}
+                        </div>`
+                )
+                .addTo(map.current);
+            }
+          });
+
+          map.current?.on("mouseleave", "projects-circles", () => {
+            if (!map.current) return;
+            map.current.getCanvas().style.cursor = "";
+            hoverPopup.current?.remove();
+          });
+
+          // Fit Bounds inicial
           map.current?.fitBounds(
             barcelonaBounds as maplibregl.LngLatBoundsLike,
             {
@@ -186,38 +267,9 @@ export default function Home() {
               animate: false,
             }
           );
-
-          const newMarkers: Record<
-            number,
-            { marker: maplibregl.Marker; el: HTMLElement }
-          > = {};
-
-          projects.forEach((project) => {
-            if (!project.lng || !project.lat) return;
-
-            const el = document.createElement("div");
-            el.style.width = "16px";
-            el.style.height = "16px";
-            el.style.borderRadius = "50%";
-            el.style.backgroundColor = "#D5D6DA";
-            el.style.cursor = "pointer";
-
-            el.onclick = () => selectProject(project.id);
-
-            const marker = new maplibregl.Marker({ element: el })
-              .setLngLat([project.lng, project.lat])
-              .addTo(map.current!);
-
-            newMarkers[project.id] = { marker, el };
-          });
-
-          setMarkers(newMarkers);
         });
+        setMapLoaded(true);
       });
-
-    return () => {
-      // Limpiar solo al desmontar el componente
-    };
   }, [projects.length]);
 
   useEffect(() => {
@@ -288,7 +340,12 @@ export default function Home() {
   return (
     <div id="top" className="w-full min-h-screen bg-primary">
       <AnimatePresence>
-        {showSplash && <SplashScreen onEnter={() => setShowSplash(false)} />}
+        {showSplash && (
+          <SplashScreen
+            onEnter={() => setShowSplash(false)}
+            isMapReady={mapLoaded}
+          />
+        )}
       </AnimatePresence>
       <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-8 shadow-lg">
         <a
