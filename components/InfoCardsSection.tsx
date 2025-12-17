@@ -8,21 +8,64 @@ const cardsData = [
   {
     id: 1,
     title: "¿QUÉ?",
-    text: "IMPACTO ES UNA PLATAFORMA DIGITAL QUE CENTRALIZA Y ORGANIZA INFORMACIÓN SOBRE PROYECTOS INCLUSIVOS EN DISTINTOS PAÍSES. A TRAVÉS DE UN MAPA INTERACTIVO, CONTENIDO EDUCATIVO Y ESPACIOS DE CONEXIÓN, AYUDAMOS A QUE CADA INICIATIVA CREZCA Y TENGA EL IMPACTO QUE MERECE.",
+    text: (
+      <>
+        <span className="font-alte-bold">IMPACTO </span> ES UNA PLATAFORMA
+        DIGITAL QUE{" "}
+        <span className="font-alte-bold">
+          CENTRALIZA Y ORGANIZA INFORMACIÓN SOBRE PROYECTOS INCLUSIVOS{" "}
+        </span>{" "}
+        EN DISTINTAS CIUDADES,{" "}
+        <span className="font-alte-bold">COMENZAMOS EN BARCELONA</span>. A
+        TRAVÉS DE UN MAPA INTERACTIVO, CONTENIDO EDUCATIVO Y ESPACIOS DE
+        CONEXIÓN,{" "}
+        <span className="font-alte-bold">
+          AYUDAMOS A QUE CADA INICIATIVA CREZCA Y TENGA EL IMPACTO QUE MERECE
+        </span>
+        .
+      </>
+    ),
     imageSrc: "/images/image-what.jpg",
     align: "left",
   },
   {
     id: 2,
     title: "¿POR QUÉ?",
-    text: "CREEMOS QUE LA VISIBILIDAD NO DEBERÍA SER UN PRIVILEGIO. EXISTEN MILES DE PROYECTOS INCLUSIVOS TRANSFORMANDO VIDAS, PERO MUCHOS PERMANECEN INVISIBLES, DESCONECTADOS ENTRE SÍ Y SIN ACCESO A LOS RECURSOS QUE PODRÍAN POTENCIAR SU IMPACTO. IMPACTO NACE PARA CAMBIAR ESO. QUEREMOS CONSTRUIR UN MUNDO DONDE LAS INICIATIVAS INCLUSIVAS NO TENGAN QUE LUCHAR POR SER VISTAS, SINO QUE SEAN RECONOCIDAS, APOYADAS Y MULTIPLICADAS.",
+    text: (
+      <>
+        CREEMOS QUE{" "}
+        <span className="font-alte-bold">
+          LA VISIBILIDAD NO DEBERÍA SER UN PRIVILEGIO
+        </span>
+        . EXISTEN MILES DE PROYECTOS INCLUSIVOS TRANSFORMANDO VIDAS, PERO MUCHOS
+        PERMANECEN INVISIBLES, DESCONECTADOS ENTRE SÍ Y SIN ACCESO A LOS
+        RECURSOS QUE PODRÍAN POTENCIAR SU IMPACTO. IMPACTO NACE PARA CAMBIAR
+        ESO.{" "}
+        <span className="font-alte-bold">
+          QUEREMOS CONSTRUIR UN MUNDO DONDE LAS INICIATIVAS INCLUSIVAS NO TENGAN
+          QUE LUCHAR POR SER VISTAS
+        </span>
+        , SINO QUE SEAN RECONOCIDAS, APOYADAS Y MULTIPLICADAS
+      </>
+    ),
     imageSrc: "/images/image-why.jpg",
     align: "right",
   },
   {
     id: 3,
     title: "¿CÓMO?",
-    text: "LO HACEMOS SIMPLIFICANDO EL ACCESO A LA INFORMACIÓN Y CONSTRUYENDO PUENTES ENTRE INICIATIVAS INCLUSIVAS Y QUIENES PUEDEN APOYARLAS. USAMOS HERRAMIENTAS DIGITALES INTUITIVAS, UN LENGUAJE ACCESIBLE Y UNA RED COLABORATIVA PARA QUE ESTOS PROYECTOS SEAN MÁS VISIBLES Y SOSTENIBLES.",
+    text: (
+      <>
+        LO HACEMOS{" "}
+        <span className="font-alte-bold">
+          SIMPLIFICANDO EL ACCESO A LA INFORMACIÓN Y CONSTRUYENDO PUENTES ENTRE
+          INICIATIVAS INCLUSIVAS Y QUIENES PUEDEN APOYARLAS
+        </span>
+        . USAMOS HERRAMIENTAS DIGITALES INTUITIVAS, UN LENGUAJE ACCESIBLE Y UNA
+        RED COLABORATIVA PARA QUE ESTOS PROYECTOS SEAN MÁS VISIBLES Y
+        SOSTENIBLES.
+      </>
+    ),
     imageSrc: "/images/image-how.jpg",
     align: "left",
   },
@@ -90,7 +133,7 @@ export default function InfoCardsSection() {
                 <h2 className="text-[60px] md:text-6xl font-alte-bold mb-8 uppercase tracking-wide">
                   {card.title}
                 </h2>
-                <p className="font-alte text-[16px] md:text-base leading-relaxed tracking-wide opacity-100 max-w-2xl">
+                <p className="font-alte text-[16px] md:text-md opacity-100 max-w-2xl">
                   {card.text}
                 </p>
               </div>

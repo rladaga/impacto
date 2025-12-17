@@ -349,7 +349,7 @@ export default function ContactForm({
 
       <motion.div variants={itemVariants}>
         <label className="block text-light text-md font-medium mb-1 font-alte-bold">
-          Cuéntanos en una frase qué te trae aquí (opcional):
+          Cuéntanos qué te trae por aquí (opcional):
         </label>
         <textarea
           name="message"

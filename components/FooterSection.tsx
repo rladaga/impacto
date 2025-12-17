@@ -35,8 +35,8 @@ export default function FooterSection() {
             viewport={{ once: true }}
             className="font-alte-bold text-light text-4xl md:text-[96px] leading-[1.1] tracking-[-0.03em] uppercase mb-6"
           >
-            SOMOS UNA ASOCIACIÓN <br className="hidden md:block" /> SIN ÁNIMOS
-            DE LUCRO
+            SOMOS UNA ASOCIACIÓN <br className="hidden md:block" /> SIN ÁNIMO DE
+            LUCRO
           </motion.h2>
 
           <motion.p

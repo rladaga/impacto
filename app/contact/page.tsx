@@ -21,14 +21,11 @@ function ContactContent() {
           className="mb-12 text-center"
         >
           <h1 className="text-5xl md:text-6xl font-alte-bold text-light mb-4 uppercase tracking-wide">
-            Ponte en Contacto
+            Nos encantaría conocerte y sumar tu mirada a{" "}
+            <ImpactoLogo fill="#D5D6DA" className="inline w-70 h-auto -mt-4" />
           </h1>
           <p className="text-lg text-accent font-alte leading-relaxed">
-            Queremos conocerte y saber cómo puedes ser parte de{" "}
-            <ImpactoLogo fill="#D5D6DA" className="inline w-24 h-auto -mt-2" />
-            .
-            <br />
-            Completa el formulario y nos comunicaremos pronto.
+            Completa el formulario y te contactaremos.
           </p>
         </motion.div>
 

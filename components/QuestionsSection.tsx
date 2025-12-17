@@ -11,19 +11,77 @@ export default function QuestionsSection() {
     >
       <div className="absolute inset-0 pointer-events-none">
         {/* Arriba Izquierda */}
-        <motion.div className="absolute top-24 left-[14%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -15, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="absolute top-24 left-[14%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Arriba Centro */}
-        <motion.div className="absolute top-20 left-[48%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -20, 0] }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.5,
+          }}
+          className="absolute top-20 left-[48%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Arriba Derecha */}
-        <motion.div className="absolute top-32 right-[10%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -18, 0] }}
+          transition={{
+            duration: 2.3,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 1,
+          }}
+          className="absolute top-32 right-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Centro Izquierda */}
-        <motion.div className="absolute top-80 left-[10%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -22, 0] }}
+          transition={{
+            duration: 2.8,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.2,
+          }}
+          className="absolute top-80 left-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Abajo Izquierda */}
-        <motion.div className="absolute bottom-24 left-[12%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -16, 0] }}
+          transition={{
+            duration: 2.1,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.8,
+          }}
+          className="absolute bottom-24 left-[12%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Abajo Derecha (Cerca del borde) */}
-        <motion.div className="absolute bottom-40 right-[8%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -19, 0] }}
+          transition={{
+            duration: 2.4,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.3,
+          }}
+          className="absolute bottom-40 right-[8%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
         {/* Abajo Centro-Derecha */}
-        <motion.div className="absolute bottom-20 right-[25%] w-8 h-8 bg-secondary pointer-events-auto  hover:bg-primary transition-colors duration-200 rounded-full" />
+        <motion.div
+          animate={{ y: [0, -21, 0] }}
+          transition={{
+            duration: 2.6,
+            repeat: Infinity,
+            ease: "linear",
+            delay: 0.6,
+          }}
+          className="absolute bottom-20 right-[25%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+        />
       </div>
 
       {/* --- CONTENEDOR DE TARJETAS --- */}
@@ -38,7 +96,7 @@ export default function QuestionsSection() {
           <div className="w-[459.95px] h-[337.93px] bg-primary rounded-[3rem] p-8 flex flex-col items-center justify-center text-center shadow-2xl">
             <div className="mb-2 relative w-[120px] h-[120px] shrink-0">
               <Image
-                src="/logos/icono-input.png"
+                src="/logos/icono-pregunta-1.png"
                 alt="Icono Entrada"
                 fill
                 className="object-contain"

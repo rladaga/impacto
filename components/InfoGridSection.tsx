@@ -47,9 +47,9 @@ export default function InfoGridSection() {
               {/* Puntos separadores (Solo si no es el último elemento) */}
               {index !== infoItems.length - 1 && (
                 <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  className="w-5 h-5 bg-[#4A69FF] rounded-full mt-12 cursor-pointer  hover:shadow-[#4A69FF]"
+                  whileHover={{ scale: 1.2 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  className="w-5 h-5 bg-[#4A69FF] rounded-full mt-12 hover:shadow-[#4A69FF]"
                 />
               )}
             </motion.div>
@@ -72,15 +72,14 @@ export default function InfoGridSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.2 }}
             transition={{
               duration: 0.6,
               type: "spring",
-              stiffness: 400,
+              stiffness: 300,
               damping: 10,
             }}
             viewport={{ once: true }}
-            className="cursor-pointer pointer-events-auto"
           >
             <Image
               src="/logos/icono-personas.png"
