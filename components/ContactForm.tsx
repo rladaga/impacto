@@ -256,7 +256,7 @@ export default function ContactForm({
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
-          placeholder="Dónde estás (para acercarte recursos)"
+          placeholder="Para acercarte recursos)"
           required
           autoComplete="on"
           onFocus={() => searchQuery.length >= 2 && setShowDropdown(true)}
@@ -319,9 +319,6 @@ export default function ContactForm({
         >
           <option className="text-black" value="voluntariado">
             Voluntariado
-          </option>
-          <option className="text-black" value="donar">
-            Donar
           </option>
           <option className="text-black" value="socio">
             Socio

@@ -7,36 +7,30 @@ import ImpactoLogoChico from "./ImpactoLogoChico";
 
 export default function FooterSection() {
   return (
-    <footer className="relative w-full bg-[#2D2C67] overflow-hidden flex flex-col items-center">
-      {/* --- CONTENEDOR PRINCIPAL --- */}
-      {/* CAMBIO CLAVE: min-h-[900px] en lugar de h-[...]. 
-          Esto permite que crezca si falta espacio y evita el corte. 
-          Aumenté el pb (padding-bottom) a 20 para darle aire abajo. */}
-      <div className="relative w-full max-w-[1440px] min-h-[900px] h-auto flex flex-col justify-between pt-32 pb-24 px-8 md:px-16">
-        {/* Fondo del Mapa */}
-        <div className="absolute inset-0 flex justify-center items-start pt-20 pointer-events-none opacity-40 md:opacity-100">
-          <div className="relative w-[1301px] h-[715px]">
+    <footer className="w-full bg-[#2D2C67] overflow-hidden flex flex-col items-center">
+      <div className="relative w-full max-w-[1440px] flex flex-col items-center justify-center px-8 md:px-16 pt-32 pb-20 min-h-[950px]">
+        <div className="absolute inset-0 flex justify-center items-start pt-10 md:pt-20 pointer-events-none opacity-40 md:opacity-100 ">
+          <div className="relative w-[90%] h-[80%] md:w-[1301px] md:h-[715px]">
             <Image
               src="/logos/icono-mapa.png"
               alt="Mapa de puntos mundial"
               fill
-              className="object-contain"
+              className="object-contain object-top"
               priority
             />
           </div>
         </div>
 
-        {/* --- CONTENIDO CENTRAL --- */}
-        <div className="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto mt-10 md:mt-20">
+        {/* --- CONTENIDO CENTRAL (TÍTULO Y BOTÓN) --- */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="font-alte-bold text-light text-4xl md:text-[96px] leading-[1.1] tracking-[-0.03em] uppercase mb-6"
+            className="font-alte-bold text-light text-4xl md:text-[76px] leading-[1.1] tracking-[-0.03em] uppercase mb-6"
           >
-            SOMOS UNA ASOCIACIÓN <br className="hidden md:block" /> SIN ÁNIMO DE
-            LUCRO
+            SOMOS UNA ASOCIACIÓN SIN ÁNIMO DE LUCRO
           </motion.h2>
 
           <motion.p
@@ -46,7 +40,7 @@ export default function FooterSection() {
             viewport={{ once: true }}
             className="font-alte text-light text-sm md:text-[16px] leading-[1.4] tracking-[-0.03em] mb-10 opacity-80 uppercase"
           >
-            Tu apoyo marca la diferencia en la vida de muchas personas
+            TU TIEMPO Y TU TALENTO PUEDEN MARCAR LA DIFERENCIA. SÚMATE A LA RED.
           </motion.p>
 
           <Link href="/contact">
@@ -57,7 +51,7 @@ export default function FooterSection() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               viewport={{ once: true }}
-              className="group h-9 bg-secondary hover:bg-light text-light hover:text-secondary font-alte-bold text-xs md:text-[16px] px-6 rounded-full flex items-center gap-2 transition-colors shadow-lg cursor-pointer uppercase "
+              className="group h-9 bg-secondary hover:bg-light text-light hover:text-secondary font-alte-bold text-xs md:text-[16px] px-6 rounded-full flex items-center gap-2 transition-colors shadow-lg cursor-pointer uppercase mt-10 "
             >
               SE PARTE
               <svg
@@ -79,9 +73,11 @@ export default function FooterSection() {
             </motion.button>
           </Link>
         </div>
+      </div>
 
-        {/* --- PIE DE PÁGINA (LINKS) --- */}
-        <div className="relative z-10 w-full flex flex-col md:flex-row justify-between items-end md:items-end mt-16 pt-20 border-t border-white/10 md:border-none">
+      {/* --- PIE DE PÁGINA (LINKS) --- */}
+      <div className="w-full max-w-[1440px] px-8 md:px-16 pb-16 z-20">
+        <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-end pt-12">
           {/* Logo Izquierda */}
           <div className="mb-8 md:mb-0">
             <div className="w-24 md:w-32">
@@ -92,14 +88,14 @@ export default function FooterSection() {
           {/* Columnas de Links */}
           <div className="flex flex-wrap gap-12 md:gap-24 text-[10px] md:text-[16px] font-alte text-secondary uppercase text-left">
             <div className="flex flex-col gap-3">
-              <h4 className="font-alte-bold text-[#4A69FF]">FIND US</h4>
-              <a href="#" className="hover:text-accent transition-colors">
-                BARCELONA, SPAIN
-              </a>
+              <h4 className="font-alte-bold text-[#4A69FF]">ENCUÉNTRANOS</h4>
+              <p className="hover:text-accent cursor-default transition-colors">
+                BARCELONA, ESPAÑA
+              </p>
             </div>
 
             <div className="flex flex-col gap-3">
-              <h4 className="font-alte-bold text-[#4A69FF] ">LET'S TALK</h4>
+              <h4 className="font-alte-bold text-[#4A69FF] ">HABLEMOS</h4>
               <a
                 href="https://www.linkedin.com/company/makeimpacto/"
                 target="_blank"
@@ -117,7 +113,9 @@ export default function FooterSection() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <h4 className="font-alte-bold text-[#4A69FF] ">WORK WITH US</h4>
+              <h4 className="font-alte-bold text-[#4A69FF] ">
+                COLABORA CON NOSOTROS
+              </h4>
               <a
                 href="mailto:crew.impacto@gmail.com"
                 className="hover:text-accent transition-colors"
@@ -128,7 +126,7 @@ export default function FooterSection() {
                 href="/contact"
                 className="hover:text-accent transition-colors"
               >
-                APPLY HERE
+                SÚMATE AQUÍ
               </a>
             </div>
           </div>

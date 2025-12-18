@@ -361,21 +361,21 @@ export default function Home() {
             onClick={(e) => handleScroll(e, "about-us")}
             className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
-            ABOUT US
+            CONÓCENOS
           </a>
           <a
             href="#get-involved"
             onClick={(e) => handleScroll(e, "get-involved")}
             className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
-            GET INVOLVED
+            ÚNETE
           </a>
           <a
             href="#to-think"
             onClick={(e) => handleScroll(e, "to-think")}
             className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
           >
-            TO THINK
+            REFLEXIONA
           </a>
         </div>
       </nav>
@@ -557,7 +557,7 @@ export default function Home() {
                         </div>
 
                         {/* Descripción */}
-                        <p className="font-alte text-sm md:text-[15px] leading-relaxed text-justify opacity-90 font-medium">
+                        <p className="font-alte-bold text-sm md:text-[15px] leading-tight text-justify opacity-90 font-medium">
                           {selectedProject.description}
                         </p>
 

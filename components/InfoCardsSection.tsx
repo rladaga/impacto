@@ -10,8 +10,7 @@ const cardsData = [
     title: "¿QUÉ?",
     text: (
       <>
-        <span className="font-alte-bold">IMPACTO </span> ES UNA PLATAFORMA
-        DIGITAL QUE{" "}
+        IMPACTO ES UNA PLATAFORMA DIGITAL QUE{" "}
         <span className="font-alte-bold">
           CENTRALIZA Y ORGANIZA INFORMACIÓN SOBRE PROYECTOS INCLUSIVOS{" "}
         </span>{" "}
@@ -20,9 +19,10 @@ const cardsData = [
         TRAVÉS DE UN MAPA INTERACTIVO, CONTENIDO EDUCATIVO Y ESPACIOS DE
         CONEXIÓN,{" "}
         <span className="font-alte-bold">
-          AYUDAMOS A QUE CADA INICIATIVA CREZCA Y TENGA EL IMPACTO QUE MERECE
+          AYUDAMOS A QUE CADA INICIATIVA SEA FÁCIL DE ENCONTRAR PARA QUIEN LA
+          NECESITA
         </span>
-        .
+        , Y A QUE BUSCAR ESPACIOS SEGUROS E INCLUSIVOS DEJE DE SER UN DESAFÍO.
       </>
     ),
     imageSrc: "/images/image-what.jpg",
@@ -35,17 +35,16 @@ const cardsData = [
       <>
         CREEMOS QUE{" "}
         <span className="font-alte-bold">
-          LA VISIBILIDAD NO DEBERÍA SER UN PRIVILEGIO
-        </span>
-        . EXISTEN MILES DE PROYECTOS INCLUSIVOS TRANSFORMANDO VIDAS, PERO MUCHOS
-        PERMANECEN INVISIBLES, DESCONECTADOS ENTRE SÍ Y SIN ACCESO A LOS
-        RECURSOS QUE PODRÍAN POTENCIAR SU IMPACTO. IMPACTO NACE PARA CAMBIAR
-        ESO.{" "}
+          LA VISIBILIDAD NO DEBERÍA SER UN PRIVILEGIO, SABEMOS LO QUE IMPLICA
+          BUSCAR ESPACIOS SEGUROS E INCLUSIVOS:
+        </span>{" "}
+        INVERTIR TIEMPO, ENERGÍA Y MUCHAS VECES ACABAR CON MÁS DUDAS QUE
+        RESPUESTAS. LA INFORMACIÓN SUELE ESTAR DISPERSA, DESACTUALIZADA O
+        DEPENDE DEL BOCA A BOCA.{" "}
         <span className="font-alte-bold">
-          QUEREMOS CONSTRUIR UN MUNDO DONDE LAS INICIATIVAS INCLUSIVAS NO TENGAN
-          QUE LUCHAR POR SER VISTAS
-        </span>
-        , SINO QUE SEAN RECONOCIDAS, APOYADAS Y MULTIPLICADAS
+          IMPACTO NACE PARA REDUCIR ESA CARGA Y FACILITAR EL ACCESO
+        </span>{" "}
+        A RECURSOS, DE FORMA CLARA Y SEGURA.
       </>
     ),
     imageSrc: "/images/image-why.jpg",
@@ -56,14 +55,16 @@ const cardsData = [
     title: "¿CÓMO?",
     text: (
       <>
-        LO HACEMOS{" "}
         <span className="font-alte-bold">
-          SIMPLIFICANDO EL ACCESO A LA INFORMACIÓN Y CONSTRUYENDO PUENTES ENTRE
-          INICIATIVAS INCLUSIVAS Y QUIENES PUEDEN APOYARLAS
+          GEOLOCALIZAMOS INICIATIVAS INCLUSIVAS EN UN MAPA PARA QUE LA
+          INFORMACIÓN ESTÉ ORGANIZADA
+        </span>{" "}
+        Y SEA FÁCIL DE EXPLORAR. CONVERTIMOS DATOS DISPERSOS EN RECURSOS CLAROS,
+        CON DESCRIPCIONES COMPRENSIBLES Y CRITERIOS COMUNES, Y{" "}
+        <span className="font-alte-bold">
+          FOMENTAMOS LA COLABORACIÓN ENTRE INICIATIVAS Y COMUNIDAD.{" "}
         </span>
-        . USAMOS HERRAMIENTAS DIGITALES INTUITIVAS, UN LENGUAJE ACCESIBLE Y UNA
-        RED COLABORATIVA PARA QUE ESTOS PROYECTOS SEAN MÁS VISIBLES Y
-        SOSTENIBLES.
+        PARA QUE ORIENTARSE SEA MÁS SENCILLO Y ENCONTRAR OPCIONES SEA MÁS FACIL.
       </>
     ),
     imageSrc: "/images/image-how.jpg",
@@ -133,7 +134,7 @@ export default function InfoCardsSection() {
                 <h2 className="text-[60px] md:text-6xl font-alte-bold mb-8 uppercase tracking-wide">
                   {card.title}
                 </h2>
-                <p className="font-alte text-[16px] md:text-md opacity-100 max-w-2xl">
+                <p className="font-alte text-[16px] md:text-md leading-5.5 opacity-100 max-w-2xl">
                   {card.text}
                 </p>
               </div>
