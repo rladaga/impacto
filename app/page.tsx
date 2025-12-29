@@ -565,7 +565,7 @@ export default function Home() {
                         <div className="flex flex-col gap-4 mt-2">
                           {/* Público Objetivo */}
                           <div>
-                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[14px] px-3 py-1 rounded-full mb-2 uppercase tracking-wider shadow-sm">
+                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[18px] px-6 py-1 rounded-full mb-2 uppercase tracking-wider leading-relaxed shadow-sm">
                               PÚBLICO OBJETIVO
                             </div>
                             <p className="text-sm opacity-90 font-alte font-bold ml-1">
@@ -575,7 +575,7 @@ export default function Home() {
 
                           {/* Servicios */}
                           <div>
-                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[14px] px-3 py-1 rounded-full mb-2 uppercase tracking-wider shadow-sm">
+                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[18px] px-6 py-1 rounded-full mb-2 uppercase tracking-wider leading-relaxed shadow-sm">
                               SERVICIOS
                             </div>
                             <p className="text-sm opacity-90 font-alte ml-1">
@@ -586,7 +586,7 @@ export default function Home() {
 
                           {/* Contacto (Al final) */}
                           <div className="mt-auto pt-4">
-                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[14px] px-3 py-1 rounded-full mb-2 uppercase tracking-wider shadow-sm">
+                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[18px] px-6 py-1 rounded-full mb-2 uppercase tracking-wider leading-relaxed shadow-sm">
                               CONTACTO
                             </div>
                             <p className="text-sm opacity-90 font-alte font-bold ml-1">
