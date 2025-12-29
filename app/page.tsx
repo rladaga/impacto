@@ -17,9 +17,8 @@ import Image from "next/image";
 interface Project {
   id: number;
   name: string;
-  project_type: string;
+  services: string;
   audience: string;
-  disability_type: string;
   description: string;
   address: string;
   contact: string;
@@ -29,6 +28,9 @@ interface Project {
   lat?: number;
   image_url?: string;
   image?: string;
+  instagram_url?: string;
+  facebook_url?: string;
+  email?: string;
 }
 
 const barcelonaBounds: [number, number][] = [
@@ -542,8 +544,8 @@ export default function Home() {
 
                       <div className="w-full md:w-7/12 h-full overflow-y-auto flex flex-col gap-5 text-[#2D2C67] pr-2 relative z-20">
                         {/* Metadata */}
-                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest opacity-70 font-alte-bold text-primary mt-2 md:mt-0">
-                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest opacity-70 font-alte-bold text-secondary mt-2 md:mt-0">
+                          <div className="w-2 h-2 bg-secondary rounded-full"></div>
                           ULTIMA ACTUALIZACION:{" "}
                           {selectedProject.updated_at
                             ? new Date(
@@ -579,19 +581,121 @@ export default function Home() {
                               SERVICIOS
                             </div>
                             <p className="text-sm opacity-90 font-alte ml-1">
-                              {selectedProject.project_type ||
+                              {selectedProject.services ||
                                 "Consultar servicios disponibles."}
                             </p>
                           </div>
 
                           {/* Contacto (Al final) */}
-                          <div className="mt-auto pt-4">
-                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[18px] px-6 py-1 rounded-full mb-2 uppercase tracking-wider leading-relaxed shadow-sm">
+                          <div className="mt-auto pt-4 flex flex-wrap items-center gap-3">
+                            <div className="inline-block bg-[#4A69FF] text-white font-alte-bold text-[18px] px-6 py-1 rounded-full uppercase tracking-wider leading-relaxed shadow-sm">
                               CONTACTO
                             </div>
-                            <p className="text-sm opacity-90 font-alte font-bold ml-1">
-                              {selectedProject.contact}
-                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                              {/* Website */}
+                              {selectedProject.contact && (
+                                <a
+                                  href={
+                                    selectedProject.contact.startsWith("http")
+                                      ? selectedProject.contact
+                                      : `https://${selectedProject.contact}`
+                                  }
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-10 h-10 bg-[#4A69FF] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                                  title="Website"
+                                >
+                                  <div className="relative w-8 h-8">
+                                    <Image
+                                      src="/logos/mundo-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      alt="Web"
+                                      fill
+                                      className="object-contain brightness-0 invert"
+                                    />
+                                  </div>
+                                </a>
+                              )}
+
+                              {/* Email */}
+                              {selectedProject.email && (
+                                <a
+                                  href={`mailto:${selectedProject.email}`}
+                                  className="w-10 h-10 bg-[#4A69FF] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                                  title="Email"
+                                >
+                                  <div className="relative w-7 h-7">
+                                    <Image
+                                      src="/logos/email-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      alt="Email"
+                                      fill
+                                      className="object-contain brightness-0 invert"
+                                    />
+                                  </div>
+                                </a>
+                              )}
+
+                              {/* Facebook */}
+                              {selectedProject.facebook_url && (
+                                <a
+                                  href={selectedProject.facebook_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-10 h-10 bg-[#4A69FF] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                                  title="Facebook"
+                                >
+                                  <div className="relative w-6 h-6">
+                                    <Image
+                                      src="/logos/fb-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      alt="Facebook"
+                                      fill
+                                      className="object-contain brightness-0 invert"
+                                    />
+                                  </div>
+                                </a>
+                              )}
+
+                              {/* Instagram */}
+                              {selectedProject.instagram_url && (
+                                <a
+                                  href={selectedProject.instagram_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-10 h-10 bg-[#4A69FF] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                                  title="Instagram"
+                                >
+                                  <div className="relative w-8 h-8">
+                                    <Image
+                                      src="/logos/ig-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      alt="Instagram"
+                                      fill
+                                      className="object-contain brightness-0 invert"
+                                    />
+                                  </div>
+                                </a>
+                              )}
+
+                              {/* Address / Maps */}
+                              {selectedProject.address && (
+                                <a
+                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                    selectedProject.address
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-10 h-10 bg-[#4A69FF] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md cursor-pointer"
+                                  title="Ubicación"
+                                >
+                                  <div className="relative w-6 h-6">
+                                    <Image
+                                      src="/logos/map-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      alt="Mapa"
+                                      fill
+                                      className="object-contain brightness-0 invert"
+                                    />
+                                  </div>
+                                </a>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
