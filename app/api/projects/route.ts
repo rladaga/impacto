@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       name,
-      project_type,
       audience,
       disability_type,
       description,
@@ -64,8 +63,10 @@ export async function POST(request: NextRequest) {
       contact,
       lng,
       lat,
-      activities,
-      public_type,
+      facebook_url,
+      instagram_url,
+      email,
+      services,
       image_url,
     } = body;
 
@@ -89,7 +90,6 @@ export async function POST(request: NextRequest) {
       .insert([
         {
           name,
-          project_type,
           audience,
           disability_type,
           description,
@@ -97,8 +97,10 @@ export async function POST(request: NextRequest) {
           contact,
           lng,
           lat,
-          activities,
-          public_type,
+          facebook_url,
+          instagram_url,
+          email,
+          services,
           image_url,
         },
       ])
@@ -125,7 +127,6 @@ export async function PUT(request: NextRequest) {
     const {
       id,
       name,
-      project_type,
       audience,
       disability_type,
       description,
@@ -133,8 +134,10 @@ export async function PUT(request: NextRequest) {
       contact,
       lng,
       lat,
-      activities,
-      public_type,
+      facebook_url,
+      instagram_url,
+      email,
+      services,
       image_url,
     } = body;
 
@@ -148,7 +151,6 @@ export async function PUT(request: NextRequest) {
       .from("projects")
       .update({
         name,
-        project_type,
         audience,
         disability_type,
         description,
@@ -156,9 +158,11 @@ export async function PUT(request: NextRequest) {
         contact,
         lng,
         lat,
-        activities,
-        public_type,
         image_url,
+        facebook_url,
+        instagram_url,
+        email,
+        services,
       })
       .eq("id", id)
       .select();

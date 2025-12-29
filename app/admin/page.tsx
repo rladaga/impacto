@@ -26,17 +26,19 @@ interface Contact {
 interface Project {
   id: string;
   name: string;
-  project_type: string;
   audience: string;
   disability_type: string;
   description: string;
   address: string;
+  services: string;
   contact: string;
   created_at?: string;
   lng?: string;
   lat?: string;
-  activities?: string;
-  public_type?: string;
+  image_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  email?: string;
 }
 
 export default function AdminPage() {
@@ -156,7 +158,6 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectFormData, setProjectFormData] = useState<Omit<Project, "id">>({
     name: "",
-    project_type: "",
     audience: "",
     disability_type: "",
     description: "",
@@ -164,8 +165,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     contact: "",
     lng: "",
     lat: "",
-    activities: "",
-    public_type: "",
+    image_url: "",
+    services: "",
+    facebook_url: "",
+    instagram_url: "",
+    email: "",
   });
 
   useEffect(() => {
@@ -219,7 +223,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           }),
         });
 
+        console.log(projectFormData);
+
         if (response.ok) {
+          console.log(response);
+
           setShowProjectModal(false);
           setEditingProject(null);
           resetProjectForm();
@@ -265,7 +273,6 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     setEditingProject(project);
     setProjectFormData({
       name: project.name,
-      project_type: project.project_type,
       audience: project.audience,
       disability_type: project.disability_type,
       description: project.description,
@@ -273,8 +280,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       contact: project.contact,
       lng: project.lng || "",
       lat: project.lat || "",
-      activities: project.activities || "",
-      public_type: project.public_type || "",
+      services: project.services || "",
+      facebook_url: project.facebook_url || "",
+      instagram_url: project.instagram_url || "",
+      image_url: project.image_url || "",
+      email: project.email || "",
     });
     setShowProjectModal(true);
   };
@@ -282,7 +292,6 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const resetProjectForm = () => {
     setProjectFormData({
       name: "",
-      project_type: "",
       audience: "",
       disability_type: "",
       description: "",
@@ -290,8 +299,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       contact: "",
       lng: "",
       lat: "",
-      activities: "",
-      public_type: "",
+      services: "",
+      facebook_url: "",
+      instagram_url: "",
+      image_url: "",
+      email: "",
     });
     setEditingProject(null);
   };
@@ -341,12 +353,8 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         header: "Nombre",
       },
       {
-        accessorKey: "project_type",
-        header: "Tipo",
-      },
-      {
         accessorKey: "audience",
-        header: "Audiencia",
+        header: "Público Objetivo",
       },
       {
         accessorKey: "disability_type",
@@ -358,12 +366,15 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       },
       {
         accessorKey: "contact",
-        header: "Contacto",
+        header: "Página web",
       },
       { accessorKey: "lng", header: "Longitud" },
       { accessorKey: "lat", header: "Latitud" },
-      { accessorKey: "activities", header: "Actividades" },
-      { accessorKey: "public_type", header: "Tipo de Público" },
+      { accessorKey: "services", header: "Servicios" },
+      { accessorKey: "facebook_url", header: "Facebook" },
+      { accessorKey: "instagram_url", header: "Instagram" },
+      { accessorKey: "email", header: "Email" },
+      { accessorKey: "image_url", header: "Imagen" },
       {
         id: "actions",
         header: "Acciones",
@@ -857,96 +868,19 @@ function ProjectModal({
         </h2>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Nombre *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Tipo de Proyecto *
-              </label>
-              <input
-                type="text"
-                value={formData.project_type}
-                onChange={(e) =>
-                  setFormData({ ...formData, project_type: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Audiencia *
-              </label>
-              <input
-                type="text"
-                value={formData.audience}
-                onChange={(e) =>
-                  setFormData({ ...formData, audience: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Tipo de Discapacidad *
-              </label>
-              <input
-                type="text"
-                value={formData.disability_type}
-                onChange={(e) =>
-                  setFormData({ ...formData, disability_type: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Dirección *
-              </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Contacto *
-              </label>
-              <input
-                type="text"
-                value={formData.contact}
-                onChange={(e) =>
-                  setFormData({ ...formData, contact: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Nombre *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
           </div>
 
           <div>
@@ -960,6 +894,140 @@ function ProjectModal({
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark resize-none"
               rows={4}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Publico objetivo *
+            </label>
+            <input
+              type="text"
+              value={formData.audience}
+              onChange={(e) =>
+                setFormData({ ...formData, audience: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Servicios
+            </label>
+            <input
+              type="text"
+              value={formData.services}
+              onChange={(e) =>
+                setFormData({ ...formData, services: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Tipo de Discapacidad *
+            </label>
+            <input
+              type="text"
+              value={formData.disability_type}
+              onChange={(e) =>
+                setFormData({ ...formData, disability_type: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Dirección *
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Página web *
+            </label>
+            <input
+              type="text"
+              value={formData.contact}
+              onChange={(e) =>
+                setFormData({ ...formData, contact: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Email *
+            </label>
+            <input
+              type="text"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Imagen URL *
+            </label>
+            <input
+              type="text"
+              value={formData.image_url}
+              onChange={(e) =>
+                setFormData({ ...formData, image_url: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Facebook URL
+            </label>
+            <input
+              type="text"
+              value={formData.facebook_url}
+              onChange={(e) =>
+                setFormData({ ...formData, facebook_url: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Instagram URL
+            </label>
+            <input
+              type="text"
+              value={formData.instagram_url}
+              onChange={(e) =>
+                setFormData({ ...formData, instagram_url: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
               required
             />
           </div>
@@ -987,34 +1055,6 @@ function ProjectModal({
               value={formData.lat}
               onChange={(e) =>
                 setFormData({ ...formData, lat: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
-              Actividades
-            </label>
-            <input
-              type="text"
-              value={formData.activities}
-              onChange={(e) =>
-                setFormData({ ...formData, activities: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
-              Tipo de Público
-            </label>
-            <input
-              type="text"
-              value={formData.public_type}
-              onChange={(e) =>
-                setFormData({ ...formData, public_type: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
             />
