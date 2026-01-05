@@ -11,14 +11,14 @@ export default function QuestionsSection() {
   return (
     <section
       id="to-think"
-      className="relative z-10 w-full py-40 px-4 bg-light overflow-hidden flex flex-col items-center justify-center"
+      className="relative z-10 w-full py-20 md:py-40 px-4 bg-light overflow-hidden flex flex-col items-center justify-center"
     >
       <div className="absolute inset-0 pointer-events-none">
         {/* Arriba Izquierda */}
         <motion.div
           animate={{ y: [0, -15, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="absolute top-24 left-[14%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute top-10 left-4 md:top-24 md:left-[14%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Arriba Centro */}
         <motion.div
@@ -29,7 +29,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 0.5,
           }}
-          className="absolute top-20 left-[48%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute top-16 right-8 md:top-20 md:left-[48%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Arriba Derecha */}
         <motion.div
@@ -40,7 +40,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 1,
           }}
-          className="absolute top-32 right-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute top-32 -right-2 md:top-32 md:right-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Centro Izquierda */}
         <motion.div
@@ -51,7 +51,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 0.2,
           }}
-          className="absolute top-80 left-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute top-[40%] -left-2 md:top-80 md:left-[10%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Abajo Izquierda */}
         <motion.div
@@ -62,7 +62,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 0.8,
           }}
-          className="absolute bottom-24 left-[12%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute bottom-10 left-6 md:bottom-24 md:left-[12%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Abajo Derecha (Cerca del borde) */}
         <motion.div
@@ -73,7 +73,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 0.3,
           }}
-          className="absolute bottom-40 right-[8%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute bottom-[35%] -right-2 md:bottom-40 md:right-[8%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
         {/* Abajo Centro-Derecha */}
         <motion.div
@@ -84,7 +84,7 @@ export default function QuestionsSection() {
             ease: "linear",
             delay: 0.6,
           }}
-          className="absolute bottom-20 right-[25%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
+          className="absolute bottom-24 right-10 md:bottom-20 md:right-[25%] w-8 h-8 bg-secondary pointer-events-auto hover:bg-primary transition-colors duration-200 rounded-full"
         />
       </div>
 
@@ -97,11 +97,11 @@ export default function QuestionsSection() {
           viewport={{ once: true }}
           onHoverStart={() => setIsHoveringLeft(true)}
           onHoverEnd={() => setIsHoveringLeft(false)}
-          className="z-10 md:mr-[-15px]"
+          className="z-10 md:mr-[-15px] w-full md:w-auto flex justify-center"
         >
-          <div className="w-[459.95px] h-[337.93px] bg-primary rounded-[3rem] p-8 flex flex-col items-center justify-center text-center shadow-2xl">
+          <div className="w-full max-w-[300px] md:max-w-[460px] h-auto min-h-[300px] md:h-[338px] bg-primary rounded-4xl md:rounded-[3rem] p-6 md:p-8 flex flex-col items-center justify-center text-center shadow-2xl">
             <motion.div
-              className="mb-2 relative w-[120px] h-[120px] shrink-0"
+              className="mb-2 relative w-[90px] h-[90px] md:w-[120px] md:h-[120px] shrink-0"
               animate={isHoveringLeft ? { rotate: 360 } : { rotate: 0 }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
             >
@@ -113,7 +113,7 @@ export default function QuestionsSection() {
               />
             </motion.div>
 
-            <h3 className="font-alte-bold text-light text-xl md:text-xl leading-snug tracking-wide uppercase mb-2">
+            <h3 className="font-alte-bold text-light text-base md:text-xl leading-snug tracking-wide uppercase mb-2">
               ¿CÓMO PODEMOS ASEGURARNOS DE QUE EL ACCESO A OPORTUNIDADES NO
               DEPENDA DE LA SUERTE, SINO DE SISTEMAS JUSTOS Y ACCESIBLES PARA
               TODOS?
@@ -128,11 +128,11 @@ export default function QuestionsSection() {
           viewport={{ once: true }}
           onHoverStart={() => setIsHoveringRight(true)}
           onHoverEnd={() => setIsHoveringRight(false)}
-          className="z-0 md:ml-[-15px]"
+          className="z-0 md:ml-[-15px] w-full md:w-auto flex justify-center"
         >
-          <div className="w-[459.95px] h-[337.93px] bg-secondary rounded-[3rem] p-8 flex flex-col items-center justify-center text-center shadow-2xl">
+          <div className="w-full max-w-[300px] md:max-w-[460px] h-auto min-h-[300px] md:h-[338px] bg-secondary rounded-4xl md:rounded-[3rem] p-6 md:p-8 flex flex-col items-center justify-center text-center shadow-2xl">
             <motion.div
-              className="mb-2 relative w-[120px] h-[120px] shrink-0"
+              className="mb-2 relative w-[90px] h-[90px] md:w-[120px] md:h-[120px] shrink-0"
               animate={isHoveringRight ? { rotate: 360 } : { rotate: 0 }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
             >
@@ -144,7 +144,7 @@ export default function QuestionsSection() {
               />
             </motion.div>
 
-            <h3 className="font-alte-bold text-light text-xl md:text-xl leading-snug tracking-wide uppercase relative mb-2">
+            <h3 className="font-alte-bold text-light text-base md:text-xl leading-snug tracking-wide uppercase relative mb-2">
               <span className="relative z-10">¿QUÉ IMPACTO TENDRÍA EN TU </span>
               <span className="relative inline-block mx-1">
                 <span className="relative z-10">

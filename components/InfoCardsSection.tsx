@@ -76,9 +76,9 @@ export default function InfoCardsSection() {
   return (
     <section
       id="about-us"
-      className="relative z-10 bg-[#2D2C67] w-full py-40 px-4 md:px-4 overflow-hidden"
+      className="relative z-10 bg-[#2D2C67] w-full py-20 md:py-40 px-4 md:px-4 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto flex flex-col gap-32">
+      <div className="max-w-7xl mx-auto flex flex-col gap-16 md:gap-32">
         {cardsData.map((card, index) => (
           <motion.div
             key={card.id}
@@ -94,29 +94,35 @@ export default function InfoCardsSection() {
             {/* CONTENEDOR AZUL PADRE */}
             <div
               className={`
-                relative h-[503px] w-[1183px] bg-[#4A69FF] rounded-[3rem] shadow-2xl
+                relative h-auto md:h-[503px] w-full bg-[#4A69FF] rounded-4xl md:rounded-[3rem] shadow-2xl
                 flex flex-col md:flex-row items-center
                 ${card.align === "right" ? "md:flex-row-reverse" : ""}
               `}
             >
               {/* COLUMNA IMAGEN */}
               <div
-                className={`w-full md:w-5/12 h-[570px] md:-my-12 px-6 py-6 md:py-0 z-20 shrink-0 flex 
+                className={`w-full md:w-5/12 h-auto md:h-[570px] md:-my-12 px-6 py-8 md:py-0 z-20 shrink-0 flex justify-center
                   ${
                     card.align === "right"
                       ? "md:justify-start"
                       : "md:justify-end"
                   }
-                  ${card.align === "right" ? "pr-10 pl-0" : "pl-10 pr-0"}
+                  ${
+                    card.align === "right"
+                      ? "md:pr-10 md:pl-0"
+                      : "md:pl-10 md:pr-0"
+                  }
                   `}
               >
-                <TiltedCard className="w-full h-full flex justify-center rounded-[40px] overflow-hidden">
-                  <div className="relative w-[380px] h-[565px] rounded-[40px] overflow-hidden">
+                <TiltedCard className="w-full h-auto md:h-full flex justify-center items-center rounded-[40px] overflow-hidden">
+                  <div className="relative w-full max-w-[280px] md:max-w-[380px] h-[350px] md:h-[565px] rounded-[30px] md:rounded-[40px] overflow-hidden shadow-lg">
                     <Image
                       src={card.imageSrc}
                       alt={card.title}
-                      fill
-                      className="object-cover grayscale"
+                      width={600}
+                      height={800}
+                      className="w-full h-full object-cover grayscale"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <div className="absolute inset-0 z-10 bg-white opacity-40 mix-blend-normal" />
                     <div className="absolute inset-0 z-10 bg-linear-to-t from-light to-secondary mix-blend-multiply opacity-90" />
@@ -130,11 +136,11 @@ export default function InfoCardsSection() {
                 </TiltedCard>
               </div>
 
-              <div className="flex-1 py-12 px-8 md:px-16 text-white flex flex-col justify-center md:text-left items-start">
-                <h2 className="text-[60px] md:text-6xl font-alte-bold mb-8 uppercase tracking-wide">
+              <div className="flex-1 py-8 px-6 md:py-12 md:px-16 text-white flex flex-col justify-center items-center md:items-start text-center md:text-left">
+                <h2 className="text-4xl md:text-6xl font-alte-bold mb-4 md:mb-8 uppercase tracking-wide">
                   {card.title}
                 </h2>
-                <p className="font-alte text-[16px] md:text-md leading-5.5 opacity-100 max-w-2xl">
+                <p className="font-alte text-sm md:text-md leading-relaxed opacity-100 max-w-2xl">
                   {card.text}
                 </p>
               </div>

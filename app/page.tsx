@@ -72,6 +72,7 @@ export default function Home() {
 
   const [showSplash, setShowSplash] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -349,15 +350,15 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
-      <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-8 shadow-lg">
+      <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-4 md:px-8 shadow-lg">
         <a
           href="#top"
           onClick={(e) => handleScroll(e, "top")}
-          className="flex items-center w-40"
+          className="flex items-center w-32 md:w-40 relative z-50"
         >
-          <ImpactoLogo fill="#D5D6DA" className="w-32 h-auto" />
+          <ImpactoLogo fill="#D5D6DA" className="w-full h-auto" />
         </a>
-        <div className="flex gap-8 items-center">
+        <div className="hidden md:flex gap-8 items-center">
           <a
             href="#about-us"
             onClick={(e) => handleScroll(e, "about-us")}
@@ -380,6 +381,89 @@ export default function Home() {
             REFLEXIONA
           </a>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className="md:hidden text-[#D5D6DA] relative z-50 p-2 focus:outline-none"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-8 h-8"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-8 h-8"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
+            </svg>
+          )}
+        </button>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-0 left-0 w-full bg-primary shadow-xl flex flex-col items-center pt-24 pb-10 gap-8 md:hidden z-40 border-b border-white/10"
+            >
+              <a
+                href="#about-us"
+                onClick={(e) => {
+                  handleScroll(e, "about-us");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-lg text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+              >
+                CONÓCENOS
+              </a>
+              <a
+                href="#get-involved"
+                onClick={(e) => {
+                  handleScroll(e, "get-involved");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-lg text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+              >
+                ÚNETE
+              </a>
+              <a
+                href="#to-think"
+                onClick={(e) => {
+                  handleScroll(e, "to-think");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="text-lg text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+              >
+                REFLEXIONA
+              </a>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       <section className="relative w-full h-screen pt-20">
@@ -400,7 +484,7 @@ export default function Home() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-                className="relative w-full max-w-6xl h-auto max-h-[90vh] md:h-[680px] bg-white/40 backdrop-blur-2xl border rounded-4xl shadow-2xl flex flex-col md:flex-row overflow-hidden p-6 md:p-10 gap-6 md:gap-10"
+                className="relative w-full max-w-6xl h-[85vh] md:h-[680px] bg-white/40 backdrop-blur-2xl border rounded-4xl md:rounded-4xl shadow-2xl flex flex-col md:flex-row overflow-hidden p-4 md:p-10 gap-4 md:gap-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* BOTÓN CERRAR (Azul Oscuro) */}
@@ -426,7 +510,7 @@ export default function Home() {
 
                 {/* FLECHAS DE NAVEGACIÓN (Azul Oscuro, ubicadas en el borde del cristal) */}
                 <button
-                  className="absolute top-1/2 left-1 md:left-2 z-40 -translate-y-1/2 cursor-pointer p-2 opacity-70 hover:opacity-100 hover:scale-110 transition-all"
+                  className="absolute top-[126px] md:top-1/2 left-1 md:left-2 z-40 -translate-y-1/2 cursor-pointer p-2 opacity-70 hover:opacity-100 hover:scale-110 transition-all"
                   onClick={() => paginate(-1)}
                 >
                   <div className="relative w-12 h-12">
@@ -442,7 +526,7 @@ export default function Home() {
                 {/* FLECHA DERECHA (OSCURA) */}
 
                 <button
-                  className="absolute top-1/2 right-1 md:right-2 z-40 -translate-y-1/2 p-2 opacity-70 hover:opacity-100 hover:scale-110 cursor-pointer transition-all"
+                  className="absolute top-[126px] md:top-1/2 right-1 md:right-2 z-40 -translate-y-1/2 p-2 opacity-70 hover:opacity-100 hover:scale-110 cursor-pointer transition-all"
                   onClick={() => paginate(1)}
                 >
                   <div className="relative w-12 h-12">
@@ -473,11 +557,11 @@ export default function Home() {
                         x: { type: "spring", stiffness: 300, damping: 30 },
                         opacity: { duration: 0.2 },
                       }}
-                      className="w-full h-full flex px-6 flex-col md:flex-row gap-6 md:gap-10"
+                      className="w-full h-full flex px-0 md:px-6 flex-col md:flex-row gap-4 md:gap-10"
                     >
                       {/* --- IZQUIERDA: --- */}
 
-                      <div className="w-full md:w-5/12 h-[300px] md:h-full flex flex-col relative bg-[#4A69FF] rounded-[2.5rem] overflow-hidden shadow-xl shrink-0">
+                      <div className="w-full md:w-5/12 h-[220px] md:h-full flex flex-col relative bg-[#4A69FF] rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-xl shrink-0">
                         {/* IMAGEN (55% Alto) */}
                         <div className="h-[55%] relative w-full overflow-hidden bg-gray-200">
                           {selectedProject.image ? (
@@ -505,14 +589,14 @@ export default function Home() {
 
                         {/* TÍTULO Y DECORACIÓN  */}
 
-                        <div className="h-[45%] bg-[#4A69FF] p-6 flex flex-col items-center justify-center gap-6">
+                        <div className="h-[45%] bg-[#4A69FF] p-4 md:p-6 flex flex-col items-center justify-center gap-2 md:gap-6">
                           {/* Título: Texto blanco, centrado */}
-                          <h2 className="text-white text-center font-alte-bold text-3xl md:text-4xl leading-none uppercase wrap-break-word px-4">
+                          <h2 className="text-white text-center font-alte-bold text-xl md:text-4xl leading-none uppercase wrap-break-word px-2 md:px-4">
                             {selectedProject.name}
                           </h2>
 
                           {/* Decoración Morse*/}
-                          <div className="flex flex-col gap-4 opacity-80">
+                          <div className="hidden md:flex flex-col gap-4 opacity-80">
                             {/* Fila Superior */}
                             <div className="flex gap-1">
                               <div className="w-20 h-4 bg-[#2D2C67] rounded-full"></div>
@@ -542,7 +626,7 @@ export default function Home() {
                       </div>
                       {/* --- DERECHA: TEXTO SOBRE EL CRISTAL --- */}
 
-                      <div className="w-full md:w-7/12 h-full overflow-y-auto flex flex-col gap-5 text-[#2D2C67] pr-2 relative z-20">
+                      <div className="w-full md:w-7/12 flex-1 md:h-full overflow-y-auto flex flex-col gap-3 md:gap-5 text-[#2D2C67] pr-1 md:pr-2 relative z-20 pb-4">
                         {/* Metadata */}
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest opacity-70 font-alte-bold text-secondary mt-2 md:mt-0">
                           <div className="w-2 h-2 bg-secondary rounded-full"></div>

@@ -8,9 +8,9 @@ import ImpactoLogoChico from "./ImpactoLogoChico";
 export default function FooterSection() {
   return (
     <footer className="w-full bg-[#2D2C67] overflow-hidden flex flex-col items-center">
-      <div className="relative w-full max-w-[1440px] flex flex-col items-center justify-center px-8 md:px-16 pt-32 pb-20 min-h-[950px]">
+      <div className="relative w-full max-w-[1440px] flex flex-col items-center justify-center px-8 md:px-16 pt-24 md:pt-32 pb-10 md:pb-20 min-h-[500px] md:min-h-[950px]">
         <div className="absolute inset-0 flex justify-center items-start pt-10 md:pt-20 pointer-events-none opacity-40 md:opacity-100 ">
-          <div className="relative w-[90%] h-[80%] md:w-[1301px] md:h-[715px]">
+          <div className="relative w-[180%] h-[450px] md:w-[1301px] md:h-[715px]">
             <Image
               src="/logos/icono-mapa.png"
               alt="Mapa de puntos mundial"
@@ -77,7 +77,7 @@ export default function FooterSection() {
 
       {/* --- PIE DE PÁGINA (LINKS) --- */}
       <div className="w-full max-w-[1440px] px-8 md:px-16 pb-16 z-20">
-        <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-end pt-12">
+        <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-end pt-0 md:pt-12">
           {/* Logo Izquierda */}
           <div className="mb-8 md:mb-0">
             <div className="w-24 md:w-32">
@@ -86,7 +86,7 @@ export default function FooterSection() {
           </div>
 
           {/* Columnas de Links */}
-          <div className="flex flex-wrap gap-12 md:gap-24 text-[10px] md:text-[16px] font-alte text-secondary uppercase text-left">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-24 text-xs md:text-[16px] font-alte text-secondary uppercase text-left w-full md:w-auto">
             <div className="flex flex-col gap-3">
               <h4 className="font-alte-bold text-[#4A69FF]">ENCUÉNTRANOS</h4>
               <p className="hover:text-accent cursor-default transition-colors">
