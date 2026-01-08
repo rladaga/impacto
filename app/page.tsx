@@ -589,9 +589,9 @@ export default function Home() {
 
                         {/* TÍTULO Y DECORACIÓN  */}
 
-                        <div className="h-[45%] bg-[#4A69FF] p-4 md:p-6 flex flex-col items-center justify-center gap-2 md:gap-6">
+                        <div className="h-[45%] bg-[#4A69FF] p-4 md:p-0 mb-2 flex flex-col items-center justify-center gap-2 md:gap-6">
                           {/* Título: Texto blanco, centrado */}
-                          <h2 className="text-white text-center font-alte-bold text-xl md:text-4xl leading-none uppercase wrap-break-word px-2 md:px-4">
+                          <h2 className="text-white text-center font-alte-bold text-base md:text-2xl lg:text-3xl leading-snug uppercase w-full px-2 md:px-4">
                             {selectedProject.name}
                           </h2>
 
