@@ -983,7 +983,6 @@ function ProjectModal({
                 setFormData({ ...formData, email: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-              required
             />
           </div>
 
@@ -1013,7 +1012,6 @@ function ProjectModal({
                 setFormData({ ...formData, facebook_url: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-              required
             />
           </div>
 
@@ -1028,7 +1026,6 @@ function ProjectModal({
                 setFormData({ ...formData, instagram_url: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-              required
             />
           </div>
 
