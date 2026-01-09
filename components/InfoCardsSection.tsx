@@ -123,6 +123,7 @@ export default function InfoCardsSection() {
                       height={800}
                       className="w-full h-full object-cover grayscale"
                       sizes="(max-width: 768px) 100vw, 50vw"
+                      loading="eager"
                     />
                     <div className="absolute inset-0 z-10 bg-white opacity-40 mix-blend-normal" />
                     <div className="absolute inset-0 z-10 bg-linear-to-t from-light to-secondary mix-blend-multiply opacity-90" />
