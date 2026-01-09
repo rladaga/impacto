@@ -329,14 +329,11 @@ export default function ContactForm({
           <option className="text-black" value="familia/persona">
             Familia/Persona
           </option>
-          <option className="text-black" value="profesional">
-            Profesional
+          <option className="text-black" value="proyecto/asociacion/fundacion">
+            Proyecto/Asociación/Fundación
           </option>
-          <option className="text-black" value="proyecto/asociacion">
-            Proyecto/Asociación
-          </option>
-          <option className="text-black" value="empresa/fundacion">
-            Empresa/Fundación
+          <option className="text-black" value="profesional/empresa">
+            Profesional/Empresa
           </option>
           <option className="text-black" value="otro">
             Otro
