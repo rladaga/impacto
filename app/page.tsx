@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -31,6 +31,10 @@ interface Project {
   instagram_url?: string;
   facebook_url?: string;
   email?: string;
+  disability_type?: string;
+  activity_type?: string;
+  modality?: string;
+  accessibility?: string;
 }
 
 const barcelonaBounds: [number, number][] = [
@@ -57,13 +61,62 @@ const slideVariants = {
   }),
 };
 
+const FILTER_CATEGORIES = {
+  disability_type: {
+    label: "Tipo de discapacidad",
+    options: [
+      "Discapacidad intelectual",
+      "Síndrome de Down",
+      "Autismo (TEA)",
+      "Discapacidad motriz",
+      "Parálisis cerebral",
+      "Discapacidad sensorial",
+      "Pluridiscapacidad",
+      "Enfermedades raras",
+      "Otro",
+    ],
+  },
+  audience: {
+    label: "Edad",
+    options: ["Niños", "Adultos", "Personas mayores", "Todas las edades"],
+  },
+  activity_type: {
+    label: "Tipo de actividad",
+    options: [
+      "Terapias / salud",
+      "Educación",
+      "Empleo",
+      "Cultura / arte",
+      "Deporte",
+      "Ocio",
+      "Apoyo familiar",
+      "Vida independiente",
+      "Otro",
+    ],
+  },
+  modality: {
+    label: "Modalidad",
+    options: ["Presencial", "Online", "Híbrido"],
+  },
+  accessibility: {
+    label: "Accesibilidad",
+    options: [
+      "Accesible silla ruedas",
+      "Baño adaptado",
+      "Ascensor",
+      "Apoyo comunicación",
+      "Entorno sensorial adaptado",
+    ],
+  },
+};
+
 export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const hoverPopup = useRef<maplibregl.Popup | null>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [markers, setMarkers] = useState<
@@ -75,6 +128,13 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [[page, direction], setPage] = useState([0, 0]);
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>(
+    {},
+  );
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const imagesLoadedRef = useRef(false);
 
@@ -116,17 +176,57 @@ export default function Home() {
           } catch (error) {
             console.error(
               `Error fetching image for project ${project.id}:`,
-              error
+              error,
             );
           }
         }
         return project;
-      })
+      }),
     );
 
     imagesLoadedRef.current = true;
     setProjects(updatedProjects);
   };
+
+  // Filter Logic
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      if (
+        searchQuery &&
+        !project.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // 2. Filters
+      for (const [key, selectedOptions] of Object.entries(activeFilters)) {
+        if (selectedOptions.length === 0) continue;
+
+        // We assume the key in activeFilters matches the key in Project interface
+        // e.g. 'disability_type', 'audience', etc.
+        const projectValue = project[key as keyof Project];
+
+        if (!projectValue) return false;
+
+        // Handle if the value in DB is a string (comma separated) or already an array
+        // This makes it robust for different DB structures
+        const projectOptions = Array.isArray(projectValue)
+          ? projectValue
+          : String(projectValue)
+              .split(",")
+              .map((s) => s.trim());
+
+        // Check if ANY of the selected options match the project's options
+        const hasMatch = selectedOptions.some((option) =>
+          projectOptions.includes(option),
+        );
+
+        if (!hasMatch) return false;
+      }
+
+      return true;
+    });
+  }, [projects, searchQuery, activeFilters]);
 
   useEffect(() => {
     fetchProjects();
@@ -152,7 +252,7 @@ export default function Home() {
       try {
         maplibregl.setRTLTextPlugin(
           "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
-          true
+          true,
         );
       } catch (e) {
         console.warn("RTL text plugin initialization:", e);
@@ -182,7 +282,7 @@ export default function Home() {
 
         map.current.addControl(
           new maplibregl.NavigationControl({ showCompass: false }),
-          "bottom-right"
+          "bottom-right",
         );
 
         if (!hoverPopup.current) {
@@ -224,6 +324,8 @@ export default function Home() {
             paint: {
               "circle-radius": 8,
               "circle-color": "#D5D6DA",
+              "circle-stroke-width": 3,
+              "circle-stroke-color": "#00458B",
             },
           });
 
@@ -250,7 +352,7 @@ export default function Home() {
                 .setHTML(
                   `<div class="text-[#2D2C67] font-alte-bold text-sm px-2 py-1">
                             ${name.toUpperCase()}
-                        </div>`
+                        </div>`,
                 )
                 .addTo(map.current);
             }
@@ -268,12 +370,41 @@ export default function Home() {
             {
               padding: { top: 100, bottom: 50, left: 50, right: 50 },
               animate: false,
-            }
+            },
           );
         });
         setMapLoaded(true);
       });
   }, [projects.length]);
+
+  useEffect(() => {
+    // Update map markers when filteredProjects changes
+    if (!map.current || !mapLoaded) return;
+
+    const source = map.current.getSource(
+      "projects-source",
+    ) as maplibregl.GeoJSONSource;
+
+    if (source) {
+      const geojson = {
+        type: "FeatureCollection",
+        features: filteredProjects
+          .filter((p) => p.lng && p.lat)
+          .map((p) => ({
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [p.lng!, p.lat!],
+            },
+            properties: {
+              id: p.id,
+              name: p.name,
+            },
+          })),
+      };
+      source.setData(geojson as any);
+    }
+  }, [filteredProjects, mapLoaded]);
 
   useEffect(() => {
     if (!map.current || !selectedProjectId) return;
@@ -323,7 +454,7 @@ export default function Home() {
 
   const handleScroll = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    id: string
+    id: string,
   ) => {
     e.preventDefault();
     const element = document.getElementById(id);
@@ -338,6 +469,16 @@ export default function Home() {
         behavior: "smooth",
       });
     }
+  };
+
+  const toggleFilter = (category: string, option: string) => {
+    setActiveFilters((prev) => {
+      const current = prev[category] || [];
+      const updated = current.includes(option)
+        ? current.filter((item) => item !== option)
+        : [...current, option];
+      return { ...prev, [category]: updated };
+    });
   };
 
   return (
@@ -468,6 +609,111 @@ export default function Home() {
 
       <section className="relative w-full h-screen pt-20">
         <div ref={mapContainer} className="w-full h-full absolute inset-0" />
+
+        {/* SEARCH & FILTER BAR */}
+        <div className="absolute top-24 left-4 right-4 md:left-8 md:w-[400px] z-30 flex flex-col gap-2">
+          <div className="flex gap-2">
+            <div className="flex-1 bg-white rounded-lg shadow-lg flex items-center px-4 py-3 border border-gray-200">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-5 h-5 text-gray-400 mr-2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar proyecto..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent outline-none text-dark font-alte placeholder:text-gray-400"
+              />
+            </div>
+            <button
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              className={`px-4 py-2 rounded-lg shadow-lg font-alte-bold transition-colors flex items-center justify-center cursor-pointer ${
+                isFiltersOpen ||
+                Object.keys(activeFilters).some(
+                  (k) => activeFilters[k].length > 0,
+                )
+                  ? "bg-secondary text-white"
+                  : "bg-white text-dark hover:bg-gray-50"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {isFiltersOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-white rounded-xl shadow-xl p-4 max-h-[60vh] overflow-y-auto border border-gray-200 custom-scrollbar"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-alte-bold text-secondary">Filtros</h3>
+                  <button
+                    onClick={() => setActiveFilters({})}
+                    className="text-xs text-gray-500 hover:text-secondary underline cursor-pointer"
+                  >
+                    Limpiar todo
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {Object.entries(FILTER_CATEGORIES).map(([key, category]) => (
+                    <div key={key}>
+                      <h4 className="font-alte-bold text-sm text-dark mb-2 uppercase">
+                        {category.label}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {category.options.map((option) => {
+                          const isActive = activeFilters[key]?.includes(option);
+                          return (
+                            <button
+                              key={option}
+                              onClick={() => toggleFilter(key, option)}
+                              className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+                                isActive
+                                  ? "bg-secondary text-white border-secondary"
+                                  : "bg-white text-gray-600 border-gray-300 hover:border-secondary"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <AnimatePresence>
           {selectedProject && (
             <motion.div
@@ -633,17 +879,18 @@ export default function Home() {
                           ULTIMA ACTUALIZACION:{" "}
                           {selectedProject.updated_at
                             ? new Date(
-                                selectedProject.updated_at
+                                selectedProject.updated_at,
                               ).toLocaleDateString("es-ES")
                             : selectedProject.created_at
-                            ? new Date(
-                                selectedProject.created_at
-                              ).toLocaleDateString("es-ES")
-                            : "N/A"}
+                              ? new Date(
+                                  selectedProject.created_at,
+                                ).toLocaleDateString("es-ES")
+                              : "N/A"}
                         </div>
 
                         {/* Descripción */}
-                        <p className="font-alte-bold text-sm md:text-[15px] leading-tight text-justify opacity-90 font-medium">
+
+                        <p className="font-alte text-base md:text-lg leading-relaxed ">
                           {selectedProject.description}
                         </p>
 
@@ -691,7 +938,7 @@ export default function Home() {
                                 >
                                   <div className="relative w-8 h-8">
                                     <Image
-                                      src="/logos/mundo-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      src="/logos/mundo-gris.png"
                                       alt="Web"
                                       fill
                                       className="object-contain brightness-0 invert"
@@ -709,7 +956,7 @@ export default function Home() {
                                 >
                                   <div className="relative w-7 h-7">
                                     <Image
-                                      src="/logos/email-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      src="/logos/email-gris.png"
                                       alt="Email"
                                       fill
                                       className="object-contain brightness-0 invert"
@@ -749,7 +996,7 @@ export default function Home() {
                                 >
                                   <div className="relative w-8 h-8">
                                     <Image
-                                      src="/logos/ig-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      src="/logos/ig-gris.png"
                                       alt="Instagram"
                                       fill
                                       className="object-contain brightness-0 invert"
@@ -762,7 +1009,7 @@ export default function Home() {
                               {selectedProject.address && (
                                 <a
                                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                    selectedProject.address
+                                    selectedProject.address,
                                   )}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -771,7 +1018,7 @@ export default function Home() {
                                 >
                                   <div className="relative w-6 h-6">
                                     <Image
-                                      src="/logos/map-gris.png" // Asegúrate de tener este icono o actualiza la ruta
+                                      src="/logos/map-gris.png"
                                       alt="Mapa"
                                       fill
                                       className="object-contain brightness-0 invert"

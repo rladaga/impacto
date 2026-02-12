@@ -343,7 +343,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           new Date(info.getValue() as string).toLocaleDateString("es-ES"),
       },
     ],
-    []
+    [],
   );
 
   const projectColumns = useMemo<ColumnDef<Project>[]>(
@@ -396,7 +396,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         ),
       },
     ],
-    []
+    [],
   );
 
   const filteredContacts = useMemo(() => {
@@ -404,7 +404,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       const globalMatch =
         filtering === "" ||
         Object.values(contact).some((value) =>
-          String(value).toLowerCase().includes(filtering.toLowerCase())
+          String(value).toLowerCase().includes(filtering.toLowerCase()),
         );
 
       const columnMatch = Object.entries(columnFilters).every(
@@ -413,7 +413,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           return String(contact[key as keyof Contact])
             .toLowerCase()
             .includes(String(value).toLowerCase());
-        }
+        },
       );
 
       return globalMatch && columnMatch;
@@ -664,7 +664,7 @@ function ContactsTable({
                         <div className="flex items-center gap-2">
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {header.column.getIsSorted() && (
                             <span className="text-secondary">
@@ -691,7 +691,7 @@ function ContactsTable({
                       <td key={cell.id} className="px-6 py-4 text-dark text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}
@@ -774,7 +774,7 @@ function ProjectsTable({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </th>
                     ))}
@@ -793,7 +793,7 @@ function ProjectsTable({
                       <td key={cell.id} className="px-6 py-4 text-dark text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}
