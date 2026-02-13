@@ -13,6 +13,7 @@ import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
 import SplashScreen from "@/components/SplashScreen";
 import Image from "next/image";
+import MapStyleEditor from "@/components/MapStyleEditor";
 
 interface Project {
   id: number;
@@ -609,6 +610,8 @@ export default function Home() {
 
       <section className="relative w-full h-screen pt-20">
         <div ref={mapContainer} className="w-full h-full absolute inset-0" />
+
+        {mapLoaded && map.current && <MapStyleEditor map={map.current} />}
 
         {/* SEARCH & FILTER BAR */}
         <div className="absolute top-24 left-4 right-4 md:left-8 md:w-[400px] z-30 flex flex-col gap-2">
