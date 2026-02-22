@@ -34,7 +34,23 @@ const STYLE_GROUPS: StyleGroup[] = [
     id: "parks",
     label: "Parques / Bosques",
     property: "fill-color",
-    layers: ["landuse_park", "landcover_wood"],
+    layers: [
+      "landuse_park",
+      "landcover_wood",
+      "boundary_park",
+      "landcover_grass",
+    ],
+  },
+  {
+    id: "parks_opacity",
+    label: "Opacidad Parques",
+    property: "fill-opacity",
+    layers: [
+      "landuse_park",
+      "landcover_wood",
+      "boundary_park",
+      "landcover_grass",
+    ],
   },
   {
     id: "buildings",
@@ -119,34 +135,45 @@ const STYLE_GROUPS: StyleGroup[] = [
 
 export default function MapStyleEditor({ map }: { map: maplibregl.Map }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [colors, setColors] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!map) return;
 
-    const initialColors: Record<string, string> = {};
+    const initialValues: Record<string, string> = {};
     STYLE_GROUPS.forEach((group) => {
-      // Try to get the color from the first layer in the group
+      // Try to get the value from the first layer in the group
       const layerId = group.layers[0];
       if (map.getLayer(layerId)) {
-        const color = map.getPaintProperty(layerId, group.property as any);
-        // Only set if it's a simple string (hex/rgba) to avoid crashing with expressions
-        if (typeof color === "string") {
-          initialColors[group.id] = color;
+        const val = map.getPaintProperty(layerId, group.property as any);
+        // Only set if it's a simple string (hex/rgba) or number to avoid crashing with expressions
+        if (typeof val === "string" || typeof val === "number") {
+          initialValues[group.id] = String(val);
         }
       }
     });
-    setColors(initialColors);
+
+    // Ensure parks_opacity defaults to 1 if not set
+    if (initialValues["parks_opacity"] === undefined) {
+      initialValues["parks_opacity"] = "1";
+    }
+
+    setValues(initialValues);
   }, [map, isOpen]);
 
-  const updateColor = (groupId: string, color: string) => {
-    setColors((prev) => ({ ...prev, [groupId]: color }));
+  const updateValue = (groupId: string, value: string) => {
+    setValues((prev) => ({ ...prev, [groupId]: value }));
     const group = STYLE_GROUPS.find((g) => g.id === groupId);
     if (!group) return;
 
     group.layers.forEach((layerId) => {
       if (map.getLayer(layerId)) {
-        map.setPaintProperty(layerId, group.property, color);
+        const isNumber = !isNaN(parseFloat(value)) && isFinite(Number(value));
+        const finalValue =
+          !group.property.includes("color") && isNumber
+            ? parseFloat(value)
+            : value;
+        map.setPaintProperty(layerId, group.property, finalValue);
       }
     });
   };
@@ -194,22 +221,36 @@ export default function MapStyleEditor({ map }: { map: maplibregl.Map }) {
               {group.label}
             </label>
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={colors[group.id] || ""}
-                onChange={(e) => updateColor(group.id, e.target.value)}
-                className="w-20 text-xs border border-gray-300 rounded px-1 py-1 font-mono"
-              />
-              <input
-                type="color"
-                value={
-                  /^#[0-9A-F]{6}$/i.test(colors[group.id] || "")
-                    ? colors[group.id]
-                    : "#ffffff"
-                }
-                onChange={(e) => updateColor(group.id, e.target.value)}
-                className="w-8 h-8 rounded cursor-pointer border-0 p-0"
-              />
+              {group.property.includes("opacity") ? (
+                <input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={values[group.id] || ""}
+                  onChange={(e) => updateValue(group.id, e.target.value)}
+                  className="w-20 text-xs border border-gray-300 rounded px-1 py-1 font-mono"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={values[group.id] || ""}
+                  onChange={(e) => updateValue(group.id, e.target.value)}
+                  className="w-20 text-xs border border-gray-300 rounded px-1 py-1 font-mono"
+                />
+              )}
+              {group.property.includes("color") && (
+                <input
+                  type="color"
+                  value={
+                    /^#[0-9A-F]{6}$/i.test(values[group.id] || "")
+                      ? values[group.id]
+                      : "#ffffff"
+                  }
+                  onChange={(e) => updateValue(group.id, e.target.value)}
+                  className="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                />
+              )}
             </div>
           </div>
         ))}
