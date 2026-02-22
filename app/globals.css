@@ -2,7 +2,8 @@
 
 @font-face {
   font-family: "Archia";
-  src: url("/fonts/archia-regular.woff2") format("woff2"),
+  src:
+    url("/fonts/archia-regular.woff2") format("woff2"),
     url("/fonts/archia-regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
@@ -79,4 +80,11 @@ body {
 
 .maplibregl-popup-tip {
   display: none;
+}
+
+.rounded-project-tooltip .maplibregl-popup-content {
+  border-radius: 9999px !important;
+  padding: 4px 4px !important;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #efefef;
 }

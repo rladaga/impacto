@@ -261,7 +261,7 @@ export default function Home() {
     }
 
     // Initialize map solo una vez
-    fetch("/map_style.json")
+    fetch("/new_map_style.json")
       .then((res) => res.json())
       .then((style) => {
         const styleString = JSON.stringify(style);
@@ -291,7 +291,7 @@ export default function Home() {
             closeButton: false,
             closeOnClick: false,
             offset: 15, // Distancia vertical desde el punto
-            className: "custom-popup", // Clase opcional para estilos CSS globales
+            className: "rounded-project-tooltip", // Clase opcional para estilos CSS globales
           });
         }
 
@@ -324,9 +324,9 @@ export default function Home() {
             source: "projects-source",
             paint: {
               "circle-radius": 8,
-              "circle-color": "#D5D6DA",
+              "circle-color": "#4A69FF",
               "circle-stroke-width": 3,
-              "circle-stroke-color": "#00458B",
+              "circle-stroke-color": "#4A69FF",
             },
           });
 
@@ -351,7 +351,7 @@ export default function Home() {
               hoverPopup.current
                 .setLngLat(coordinates)
                 .setHTML(
-                  `<div class="text-[#2D2C67] font-alte-bold text-sm px-2 py-1">
+                  `<div class="text-[#4A69FF] font-alte-bold text-sm px-1 py-1">
                             ${name.toUpperCase()}
                         </div>`,
                 )
@@ -611,7 +611,7 @@ export default function Home() {
       <section className="relative w-full h-screen pt-20">
         <div ref={mapContainer} className="w-full h-full absolute inset-0" />
 
-        {mapLoaded && map.current && <MapStyleEditor map={map.current} />}
+        {/* {mapLoaded && map.current && <MapStyleEditor map={map.current} />} */}
 
         {/* SEARCH & FILTER BAR */}
         <div className="absolute top-24 left-4 right-4 md:left-8 md:w-[400px] z-30 flex flex-col gap-2">
