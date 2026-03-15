@@ -13,6 +13,7 @@ import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
 import SplashScreen from "@/components/SplashScreen";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
 interface Project {
   id: number;
@@ -61,55 +62,6 @@ const slideVariants = {
   }),
 };
 
-const FILTER_CATEGORIES = {
-  disability_type: {
-    label: "Tipo de discapacidad",
-    options: [
-      "Discapacidad intelectual",
-      "Síndrome de Down",
-      "Autismo (TEA)",
-      "Discapacidad motriz",
-      "Parálisis cerebral",
-      "Discapacidad sensorial",
-      "Pluridiscapacidad",
-      "Enfermedades raras",
-      "Otro",
-    ],
-  },
-  audience: {
-    label: "Edad",
-    options: ["Niños", "Adultos", "Personas mayores", "Todas las edades"],
-  },
-  activity_type: {
-    label: "Tipo de actividad",
-    options: [
-      "Terapias / salud",
-      "Educación",
-      "Empleo",
-      "Cultura / arte",
-      "Deporte",
-      "Ocio",
-      "Apoyo familiar",
-      "Vida independiente",
-      "Otro",
-    ],
-  },
-  modality: {
-    label: "Modalidad",
-    options: ["Presencial", "Online", "Híbrido"],
-  },
-  accessibility: {
-    label: "Accesibilidad",
-    options: [
-      "Accesible silla ruedas",
-      "Baño adaptado",
-      "Ascensor",
-      "Apoyo comunicación",
-      "Entorno sensorial adaptado",
-    ],
-  },
-};
-
 export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const hoverPopup = useRef<maplibregl.Popup | null>(null);
@@ -134,6 +86,15 @@ export default function Home() {
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>(
     {},
   );
+  const [filterCategories, setFilterCategories] = useState<
+    Record<string, { label: string; options: string[] }>
+  >({
+    disability_type: { label: "Tipo de discapacidad", options: [] },
+    age: { label: "Edad", options: [] },
+    activity_type: { label: "Tipo de actividad", options: [] },
+    modality: { label: "Modalidad", options: [] },
+    accessibility: { label: "Accesibilidad", options: [] },
+  });
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const imagesLoadedRef = useRef(false);
@@ -146,6 +107,28 @@ export default function Home() {
         const data = await response.json();
         setProjects(data);
         imagesLoadedRef.current = false; // Reset cuando cargan proyectos nuevos
+      }
+
+      // Load Categories from Database
+      const supabase = createClient();
+      const { data: catData } = await supabase
+        .from("config_options")
+        .select("*")
+        .eq("is_active", true)
+        .order("value");
+
+      if (catData) {
+        setFilterCategories((prev) => {
+          const next = { ...prev };
+          // Reset options to avoid duplication in React Strict Mode
+          Object.keys(next).forEach((k) => (next[k].options = []));
+          catData.forEach((opt) => {
+            if (next[opt.category]) {
+              next[opt.category].options.push(opt.value);
+            }
+          });
+          return next;
+        });
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -212,13 +195,51 @@ export default function Home() {
         // This makes it robust for different DB structures
         const projectOptions = Array.isArray(projectValue)
           ? projectValue
-          : String(projectValue)
-              .split(",")
-              .map((s) => s.trim());
+          : [String(projectValue)];
+
+        // Función para normalizar quitando tildes y pasando a minúsculas
+        const normalizeText = (text: string) =>
+          text
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        // Función para extraer solo palabras clave
+        const getTokens = (text: string) => {
+          const stopWords = [
+            "discapacidad",
+            "sindrome",
+            "enfermedades",
+            "personas",
+            "las",
+            "los",
+            "de",
+            "con",
+            "tipo",
+            "para",
+          ];
+          return normalizeText(text)
+            .split(/[^a-z0-9]+/) // Separa por cualquier cosa que no sea letra o número
+            .filter((w) => w.length > 2 && !stopWords.includes(w)); // Ignora palabras cortas y stopwords
+        };
 
         // Check if ANY of the selected options match the project's options
         const hasMatch = selectedOptions.some((option) =>
-          projectOptions.includes(option),
+          projectOptions.some((po) => {
+            const poStr = String(po);
+            const poNorm = normalizeText(poStr);
+            const optNorm = normalizeText(option);
+
+            // 1. Match directo de frase completa (Ej: "paralisis cerebral" detecta "paralisis cerebral / pluridiscapacidad")
+            if (poNorm.includes(optNorm) || optNorm.includes(poNorm))
+              return true;
+
+            // 2. Match por palabras clave (Ej: extraer "tea" de "Autismo (TEA)" y cruzarlo con "Neurodivergencias (TEA / Asperger)")
+            const poTokens = getTokens(poStr);
+            const optTokens = getTokens(option);
+
+            return optTokens.some((optToken) => poTokens.includes(optToken));
+          }),
         );
 
         if (!hasMatch) return false;
@@ -683,7 +704,7 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  {Object.entries(FILTER_CATEGORIES).map(([key, category]) => (
+                  {Object.entries(filterCategories).map(([key, category]) => (
                     <div key={key}>
                       <h4 className="font-alte-bold text-sm text-dark mb-2 uppercase">
                         {category.label}

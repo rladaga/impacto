@@ -12,6 +12,7 @@ import {
   flexRender,
   ColumnDef,
 } from "@tanstack/react-table";
+import MultiSelect from "@/components/MultiSelect";
 
 interface Contact {
   id: string;
@@ -39,6 +40,17 @@ interface Project {
   facebook_url?: string;
   instagram_url?: string;
   email?: string;
+  activity_type?: string;
+  modality?: string;
+  accessibility?: string;
+  age?: string;
+}
+
+interface CategoryOption {
+  id: string;
+  category: string;
+  value: string;
+  is_active: boolean;
 }
 
 export default function AdminPage() {
@@ -144,12 +156,13 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type TabType = "contacts" | "projects";
+type TabType = "contacts" | "projects" | "config";
 
 function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("contacts");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<any>([]);
   const [filtering, setFiltering] = useState("");
@@ -170,6 +183,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     facebook_url: "",
     instagram_url: "",
     email: "",
+    activity_type: "",
+    modality: "",
+    accessibility: "",
+    age: "",
   });
 
   useEffect(() => {
@@ -178,9 +195,15 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchContacts(), fetchProjects()]);
+    await Promise.all([
+      fetchContacts(),
+      fetchProjects(),
+      fetchCategoryOptions(),
+    ]);
     setLoading(false);
   };
+
+  const supabase = createClient();
 
   const fetchContacts = async () => {
     try {
@@ -206,6 +229,16 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
+    }
+  };
+
+  const fetchCategoryOptions = async () => {
+    const { data } = await supabase
+      .from("config_options")
+      .select("*")
+      .order("value");
+    if (data) {
+      setCategoryOptions(data);
     }
   };
 
@@ -285,6 +318,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       instagram_url: project.instagram_url || "",
       image_url: project.image_url || "",
       email: project.email || "",
+      activity_type: project.activity_type || "",
+      modality: project.modality || "",
+      accessibility: project.accessibility || "",
+      age: project.age || "",
     });
     setShowProjectModal(true);
   };
@@ -304,6 +341,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       instagram_url: "",
       image_url: "",
       email: "",
+      activity_type: "",
+      modality: "",
+      accessibility: "",
+      age: "",
     });
     setEditingProject(null);
   };
@@ -312,6 +353,27 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     return Array.from(new Set(contacts.map((c) => c[columnKey])))
       .filter((v) => v !== null && v !== "")
       .sort() as string[];
+  };
+
+  const getOptions = (category: string) => {
+    return categoryOptions
+      .filter((o) => o.category === category && o.is_active)
+      .map((o) => o.value);
+  };
+
+  const handleToggleOption = async (id: string, currentStatus: boolean) => {
+    await supabase
+      .from("config_options")
+      .update({ is_active: !currentStatus })
+      .eq("id", id);
+    fetchCategoryOptions();
+  };
+
+  const handleAddOption = async (category: string, value: string) => {
+    await supabase
+      .from("config_options")
+      .insert({ category, value, is_active: true });
+    fetchCategoryOptions();
   };
 
   const contactColumns = useMemo<ColumnDef<Contact>[]>(
@@ -360,6 +422,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         accessorKey: "disability_type",
         header: "Tipo de Discapacidad",
       },
+      { accessorKey: "age", header: "Edad" },
+      { accessorKey: "activity_type", header: "Tipo de Actividad" },
+      { accessorKey: "modality", header: "Modalidad" },
+      { accessorKey: "accessibility", header: "Accesibilidad" },
       {
         accessorKey: "address",
         header: "Dirección",
@@ -485,6 +551,16 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
             >
               Proyectos ({projects.length})
             </button>
+            <button
+              onClick={() => setActiveTab("config")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "config"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Configuración
+            </button>
           </div>
         </div>
 
@@ -530,6 +606,22 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               />
             </motion.div>
           )}
+
+          {activeTab === "config" && (
+            <motion.div
+              key="config"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ConfigTab
+                categoryOptions={categoryOptions}
+                onToggle={handleToggleOption}
+                onAdd={handleAddOption}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
 
@@ -546,6 +638,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
             formData={projectFormData}
             setFormData={setProjectFormData}
             isEditing={!!editingProject}
+            getOptions={getOptions}
           />
         )}
       </AnimatePresence>
@@ -831,6 +924,91 @@ function ProjectsTable({
   );
 }
 
+interface ConfigTabProps {
+  categoryOptions: CategoryOption[];
+  onToggle: (id: string, currentStatus: boolean) => void;
+  onAdd: (category: string, value: string) => void;
+}
+
+function ConfigTab({ categoryOptions, onToggle, onAdd }: ConfigTabProps) {
+  const [newValues, setNewValues] = useState<Record<string, string>>({});
+
+  const CATEGORIES = [
+    { id: "disability_type", label: "Tipo de Discapacidad" },
+    { id: "age", label: "Edad" },
+    { id: "activity_type", label: "Tipo de Actividad" },
+    { id: "modality", label: "Modalidad" },
+    { id: "accessibility", label: "Accesibilidad" },
+  ];
+
+  const handleAdd = (categoryId: string) => {
+    if (newValues[categoryId]?.trim()) {
+      onAdd(categoryId, newValues[categoryId].trim());
+      setNewValues({ ...newValues, [categoryId]: "" });
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-8">
+      <h2 className="text-2xl font-bold text-dark mb-6">
+        Configuración de Filtros de Búsqueda
+      </h2>
+      <div className="space-y-8">
+        {CATEGORIES.map((cat) => {
+          const options = categoryOptions.filter((o) => o.category === cat.id);
+          return (
+            <div key={cat.id} className="border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-bold text-secondary mb-4 uppercase">
+                {cat.label}
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                {options.map((opt) => (
+                  <div
+                    key={opt.id}
+                    className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded border border-gray-100"
+                  >
+                    <span
+                      className={`text-sm ${opt.is_active ? "text-dark font-medium" : "text-gray-400 line-through"}`}
+                    >
+                      {opt.value}
+                    </span>
+                    <button
+                      onClick={() => onToggle(opt.id, opt.is_active)}
+                      className={`text-xs px-3 py-1 rounded-full font-medium transition cursor-pointer ${opt.is_active ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}
+                    >
+                      {opt.is_active ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2 max-w-md">
+                <input
+                  type="text"
+                  placeholder="Nueva opción..."
+                  value={newValues[cat.id] || ""}
+                  onChange={(e) =>
+                    setNewValues({ ...newValues, [cat.id]: e.target.value })
+                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleAdd(cat.id)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-secondary text-sm text-dark outline-none"
+                />
+                <button
+                  onClick={() => handleAdd(cat.id)}
+                  className="px-4 py-2 bg-secondary text-white rounded hover:bg-primary transition text-sm font-medium cursor-pointer"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface ProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -838,6 +1016,7 @@ interface ProjectModalProps {
   formData: Omit<Project, "id">;
   setFormData: (data: Omit<Project, "id">) => void;
   isEditing: boolean;
+  getOptions: (category: string) => string[];
 }
 
 function ProjectModal({
@@ -847,7 +1026,24 @@ function ProjectModal({
   formData,
   setFormData,
   isEditing,
+  getOptions,
 }: ProjectModalProps) {
+  const getSelected = (val: string | undefined) => {
+    return val
+      ? val
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+  };
+
+  const handleMultiSelectChange = (
+    key: keyof Omit<Project, "id">,
+    selected: string[],
+  ) => {
+    setFormData({ ...formData, [key]: selected.join(", ") });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -927,20 +1123,48 @@ function ProjectModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
-              Tipo de Discapacidad *
-            </label>
-            <input
-              type="text"
-              value={formData.disability_type}
-              onChange={(e) =>
-                setFormData({ ...formData, disability_type: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-              required
-            />
-          </div>
+          <MultiSelect
+            label="Tipo de Discapacidad *"
+            options={getOptions("disability_type")}
+            selected={getSelected(formData.disability_type)}
+            onChange={(selected) =>
+              handleMultiSelectChange("disability_type", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Edad *"
+            options={getOptions("age")}
+            selected={getSelected(formData.age)}
+            onChange={(selected) => handleMultiSelectChange("age", selected)}
+          />
+
+          <MultiSelect
+            label="Tipo de Actividad"
+            options={getOptions("activity_type")}
+            selected={getSelected(formData.activity_type)}
+            onChange={(selected) =>
+              handleMultiSelectChange("activity_type", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Modalidad"
+            options={getOptions("modality")}
+            selected={getSelected(formData.modality)}
+            onChange={(selected) =>
+              handleMultiSelectChange("modality", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Accesibilidad"
+            options={getOptions("accessibility")}
+            selected={getSelected(formData.accessibility)}
+            onChange={(selected) =>
+              handleMultiSelectChange("accessibility", selected)
+            }
+          />
 
           <div>
             <label className="block text-sm font-medium text-dark mb-2">
