@@ -12,6 +12,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.81.1",
     "@tanstack/react-table": "^8.21.3",
+    "browser-image-compression": "^2.0.2",
     "dotenv": "^17.2.3",
     "globe.gl": "^2.45.0",
     "maplibre-gl": "^5.14.0",

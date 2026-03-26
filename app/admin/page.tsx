@@ -13,6 +13,7 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import MultiSelect from "@/components/MultiSelect";
+import imageCompression from "browser-image-compression";
 
 interface Contact {
   id: string;
@@ -189,6 +190,8 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     age: "",
   });
 
+  const supabase = createClient();
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -202,8 +205,6 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     ]);
     setLoading(false);
   };
-
-  const supabase = createClient();
 
   const fetchContacts = async () => {
     try {
@@ -256,11 +257,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           }),
         });
 
-        console.log(projectFormData);
-
         if (response.ok) {
-          console.log(response);
-
           setShowProjectModal(false);
           setEditingProject(null);
           resetProjectForm();
@@ -284,13 +281,25 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     }
   };
 
-  const handleDeleteProject = async (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este proyecto?")) {
+  const handleDeleteProject = async (project: Project) => {
+    if (
+      confirm(
+        "¿Estás seguro de que quieres eliminar este proyecto y su imagen?",
+      )
+    ) {
       try {
+        // 1. Delete image from Storage if it exists
+        if (project.image_url) {
+          await supabase.storage
+            .from("project-images")
+            .remove([project.image_url]);
+        }
+
+        // 2. Delete the database record
         const response = await fetch("/api/projects", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ id: project.id }),
         });
 
         if (response.ok) {
@@ -440,7 +449,10 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       { accessorKey: "facebook_url", header: "Facebook" },
       { accessorKey: "instagram_url", header: "Instagram" },
       { accessorKey: "email", header: "Email" },
-      { accessorKey: "image_url", header: "Imagen" },
+      {
+        accessorKey: "image_url",
+        header: "Imagen Path",
+      },
       {
         id: "actions",
         header: "Acciones",
@@ -453,7 +465,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               Editar
             </button>
             <button
-              onClick={() => handleDeleteProject(row.original.id)}
+              onClick={() => handleDeleteProject(row.original)}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium cursor-pointer"
             >
               Eliminar
@@ -969,13 +981,21 @@ function ConfigTab({ categoryOptions, onToggle, onAdd }: ConfigTabProps) {
                     className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded border border-gray-100"
                   >
                     <span
-                      className={`text-sm ${opt.is_active ? "text-dark font-medium" : "text-gray-400 line-through"}`}
+                      className={`text-sm ${
+                        opt.is_active
+                          ? "text-dark font-medium"
+                          : "text-gray-400 line-through"
+                      }`}
                     >
                       {opt.value}
                     </span>
                     <button
                       onClick={() => onToggle(opt.id, opt.is_active)}
-                      className={`text-xs px-3 py-1 rounded-full font-medium transition cursor-pointer ${opt.is_active ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}
+                      className={`text-xs px-3 py-1 rounded-full font-medium transition cursor-pointer ${
+                        opt.is_active
+                          ? "bg-red-100 text-red-700 hover:bg-red-200"
+                          : "bg-green-100 text-green-700 hover:bg-green-200"
+                      }`}
                     >
                       {opt.is_active ? "Ocultar" : "Mostrar"}
                     </button>
@@ -1028,6 +1048,9 @@ function ProjectModal({
   isEditing,
   getOptions,
 }: ProjectModalProps) {
+  const [uploading, setUploading] = useState(false);
+  const supabase = createClient();
+
   const getSelected = (val: string | undefined) => {
     return val
       ? val
@@ -1042,6 +1065,77 @@ function ProjectModal({
     selected: string[],
   ) => {
     setFormData({ ...formData, [key]: selected.join(", ") });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+
+      if (!formData.name) {
+        alert(
+          "Por favor, ingresa el nombre del proyecto antes de subir una imagen.",
+        );
+        return;
+      }
+
+      const file = e.target.files[0];
+      const options = {
+        maxSizeMB: 1, // Max file size 1MB (Great balance of quality/speed)
+        maxWidthOrHeight: 1920, // Max width/height 1920px
+        useWebWorker: true, // Better performance
+        fileType: "image/jpeg", // Convert to jpeg for consistent compression
+      };
+
+      console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`,
+      );
+
+      const fileExt = "jpg"; // We forced it to jpeg in options
+      const fileName = `${formData.name.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      // 1. Upload to Supabase
+      const { error: uploadError } = await supabase.storage
+        .from("project-images")
+        .upload(filePath, compressedFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. If there was a previous image, delete it
+      if (formData.image_url) {
+        await supabase.storage
+          .from("project-images")
+          .remove([formData.image_url]);
+      }
+
+      // 3. Update form
+      setFormData({ ...formData, image_url: filePath });
+    } catch (error: any) {
+      alert("Error subiendo imagen: " + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    if (!formData.image_url) return;
+
+    try {
+      setUploading(true);
+      const { error } = await supabase.storage
+        .from("project-images")
+        .remove([formData.image_url]);
+
+      if (error) throw error;
+      setFormData({ ...formData, image_url: "" });
+    } catch (error: any) {
+      alert("Error eliminando imagen: " + error.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -1077,6 +1171,60 @@ function ProjectModal({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
               required
             />
+          </div>
+
+          {/* IMAGE UPLOAD SECTION */}
+          <div className="border-b pb-4 mb-4">
+            <label className="block text-sm font-medium text-dark mb-2">
+              Imagen del Proyecto
+            </label>
+            {formData.image_url ? (
+              <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden group">
+                <img
+                  src={
+                    supabase.storage
+                      .from("project-images")
+                      .getPublicUrl(formData.image_url).data.publicUrl
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md opacity-0 group-hover:opacity-100"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                  </svg>
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] p-1 truncate">
+                  {formData.image_url}
+                </div>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <p className="mb-2 text-sm text-gray-500">
+                    {uploading ? "Subiendo..." : "Click para subir imagen"}
+                  </p>
+                  <p className="text-xs text-gray-400">PNG, JPG, WEBP</p>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                />
+              </label>
+            )}
           </div>
 
           <div>
@@ -1212,21 +1360,6 @@ function ProjectModal({
 
           <div>
             <label className="block text-sm font-medium text-dark mb-2">
-              Imagen URL *
-            </label>
-            <input
-              type="text"
-              value={formData.image_url}
-              onChange={(e) =>
-                setFormData({ ...formData, image_url: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
               Facebook URL
             </label>
             <input
@@ -1253,32 +1386,33 @@ function ProjectModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
-              Longitud
-            </label>
-            <input
-              type="text"
-              value={formData.lng}
-              onChange={(e) =>
-                setFormData({ ...formData, lng: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-dark mb-2">
-              Latitud
-            </label>
-            <input
-              type="text"
-              value={formData.lat}
-              onChange={(e) =>
-                setFormData({ ...formData, lat: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark mb-2">
+                Longitud
+              </label>
+              <input
+                type="text"
+                value={formData.lng}
+                onChange={(e) =>
+                  setFormData({ ...formData, lng: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-dark mb-2">
+                Latitud
+              </label>
+              <input
+                type="text"
+                value={formData.lat}
+                onChange={(e) =>
+                  setFormData({ ...formData, lat: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              />
+            </div>
           </div>
 
           <div className="flex gap-4 justify-end pt-4 border-t">
@@ -1291,7 +1425,8 @@ function ProjectModal({
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition font-medium cursor-pointer"
+              disabled={uploading}
+              className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition font-medium cursor-pointer disabled:opacity-50"
             >
               {isEditing ? "Guardar Cambios" : "Crear Proyecto"}
             </button>

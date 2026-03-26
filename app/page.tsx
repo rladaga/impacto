@@ -12,7 +12,6 @@ import ContributeSection from "@/components/ContributionSection";
 import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
 import SplashScreen from "@/components/SplashScreen";
-import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 
 interface Project {
@@ -37,6 +36,7 @@ interface Project {
   modality?: string;
   accessibility?: string;
 }
+import Image from "next/image";
 
 const barcelonaBounds: [number, number][] = [
   [2.0534, 41.3202],
@@ -97,20 +97,26 @@ export default function Home() {
   });
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const imagesLoadedRef = useRef(false);
-
   const fetchProjects = async () => {
     try {
       setLoading(true);
+      const supabase = createClient();
       const response = await fetch("/api/projects");
       if (response.ok) {
-        const data = await response.json();
-        setProjects(data);
-        imagesLoadedRef.current = false; // Reset cuando cargan proyectos nuevos
+        const data: Project[] = await response.json();
+        const projectsWithImages = data.map((project) => {
+          if (project.image_url) {
+            const { data: imageData } = supabase.storage
+              .from("project-images")
+              .getPublicUrl(project.image_url);
+            return { ...project, image: imageData.publicUrl };
+          }
+          return project;
+        });
+        setProjects(projectsWithImages);
       }
 
       // Load Categories from Database
-      const supabase = createClient();
       const { data: catData } = await supabase
         .from("config_options")
         .select("*")
@@ -135,40 +141,6 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Función separada para cargar imágenes en background
-  const fetchProjectImages = async (projectsToUpdate: Project[]) => {
-    if (imagesLoadedRef.current) return; // Evitar cargar imágenes múltiples veces
-
-    const updatedProjects = await Promise.all(
-      projectsToUpdate.map(async (project) => {
-        if (project.image_url && !project.image) {
-          try {
-            const imageResponse = await fetch("/api/proxy-image", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: project.image_url }),
-            });
-
-            if (imageResponse.ok) {
-              const blob = await imageResponse.blob();
-              const imageUrl = URL.createObjectURL(blob);
-              return { ...project, image: imageUrl };
-            }
-          } catch (error) {
-            console.error(
-              `Error fetching image for project ${project.id}:`,
-              error,
-            );
-          }
-        }
-        return project;
-      }),
-    );
-
-    imagesLoadedRef.current = true;
-    setProjects(updatedProjects);
   };
 
   // Filter Logic
@@ -252,15 +224,6 @@ export default function Home() {
   useEffect(() => {
     fetchProjects();
   }, []);
-
-  useEffect(() => {
-    if (projects.length > 0 && !imagesLoadedRef.current) {
-      const timer = setTimeout(() => {
-        fetchProjectImages(projects);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [projects.length]);
 
   useEffect(() => {
     if (!mapContainer.current || projects.length === 0) return;
