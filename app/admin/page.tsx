@@ -45,6 +45,7 @@ interface Project {
   modality?: string;
   accessibility?: string;
   age?: string;
+  is_active?: boolean;
 }
 
 interface CategoryOption {
@@ -204,6 +205,28 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       fetchCategoryOptions(),
     ]);
     setLoading(false);
+  };
+
+  const handleToggleProjectStatus = async (
+    id: string,
+    currentStatus: boolean,
+  ) => {
+    try {
+      const response = await fetch("/api/projects", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          is_active: !currentStatus,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchProjects();
+      }
+    } catch (error) {
+      console.error("Error toggling project status:", error);
+    }
   };
 
   const fetchContacts = async () => {
@@ -454,10 +477,40 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         header: "Imagen Path",
       },
       {
+        accessorKey: "is_active",
+        header: "Estado",
+        cell: ({ row }) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold ${
+              row.original.is_active
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {row.original.is_active ? "Activo" : "Inactivo"}
+          </span>
+        ),
+      },
+      {
         id: "actions",
         header: "Acciones",
         cell: ({ row }) => (
           <div className="flex gap-2">
+            <button
+              onClick={() =>
+                handleToggleProjectStatus(
+                  row.original.id,
+                  !!row.original.is_active,
+                )
+              }
+              className={`px-3 py-1 rounded text-white transition text-sm font-medium cursor-pointer ${
+                row.original.is_active
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+            >
+              {row.original.is_active ? "Desactivar" : "Activar"}
+            </button>
             <button
               onClick={() => handleEditProject(row.original)}
               className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium cursor-pointer"
@@ -474,7 +527,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         ),
       },
     ],
-    [],
+    [projects],
   );
 
   const filteredContacts = useMemo(() => {

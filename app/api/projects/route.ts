@@ -16,14 +16,14 @@ async function getSupabaseClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, options),
             );
           } catch {
             // Ignorar errores de escritura en contextos donde no se permite
           }
         },
       },
-    }
+    },
   );
 }
 
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       console.error("Error Supabase:", error);
       return NextResponse.json(
         { error: "Error al obtener proyectos" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     if (!name) {
       return NextResponse.json(
         { error: "Nombre es requerido" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: true, message: "Proyecto guardado", data },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error:", error);
@@ -139,6 +139,7 @@ export async function PUT(request: NextRequest) {
       email,
       services,
       image_url,
+      is_active,
     } = body;
 
     if (!id) {
@@ -163,6 +164,7 @@ export async function PUT(request: NextRequest) {
         instagram_url,
         email,
         services,
+        is_active,
       })
       .eq("id", id)
       .select();
@@ -171,13 +173,13 @@ export async function PUT(request: NextRequest) {
       console.error("Error Supabase PUT:", error);
       return NextResponse.json(
         { error: "Error al actualizar el proyecto" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: true, message: "Proyecto actualizado", data },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error:", error);
@@ -202,13 +204,13 @@ export async function DELETE(request: NextRequest) {
       console.error("Error Supabase DELETE:", error);
       return NextResponse.json(
         { error: "Error al eliminar el proyecto" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: true, message: "Proyecto eliminado" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error:", error);

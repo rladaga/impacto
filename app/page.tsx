@@ -35,6 +35,7 @@ interface Project {
   activity_type?: string;
   modality?: string;
   accessibility?: string;
+  is_active?: boolean;
 }
 import Image from "next/image";
 
@@ -104,7 +105,10 @@ export default function Home() {
       const response = await fetch("/api/projects");
       if (response.ok) {
         const data: Project[] = await response.json();
-        const projectsWithImages = data.map((project) => {
+        const activeProjects = data.filter(
+          (project) => project.is_active !== false,
+        );
+        const projectsWithImages = activeProjects.map((project) => {
           if (project.image_url) {
             const { data: imageData } = supabase.storage
               .from("project-images")
