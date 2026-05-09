@@ -58,6 +58,51 @@
   --color-dark: #25251d;
 }
 
+/* --- Figma typography utilities (Voluntariado page).
+   Sizes are the exact values from Figma — pair with `md:` so mobile stays sane. --- */
+@utility text-hero-title {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 96px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+@utility text-display-subtitle {
+  font-family: "Alte Haas Grotesk Regular", sans-serif;
+  font-weight: 400;
+  font-size: 24.4px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+@utility text-pill-label {
+  font-family: "Alte Haas Grotesk Regular", sans-serif;
+  font-weight: 400;
+  font-size: 23.47px;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+}
+
+@utility text-button-large {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 23.38px;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+@utility text-section-title {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 56px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

@@ -11,6 +11,7 @@ import InfoGridSection from "@/components/InfoGridSection";
 import ContributeSection from "@/components/ContributionSection";
 import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
+import Link from "next/link";
 import SplashScreen from "@/components/SplashScreen";
 import { createClient } from "@/utils/supabase/client";
 
@@ -79,6 +80,10 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // If the user landed via /#section (e.g. coming from /voluntariado), we keep
+  // the splash visible as a loading bridge and scroll to this anchor once the
+  // map finishes initializing.
+  const [hashTarget, setHashTarget] = useState<string | null>(null);
 
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -228,6 +233,32 @@ export default function Home() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // If the user lands on `/` with a hash anchor (e.g. /#about-us coming from
+  // /voluntariado), record the target. The splash stays up as a loading bridge
+  // until the map is ready, then auto-dismisses (via SplashScreen autoEnter)
+  // and we scroll to the section in the splash's onEnter callback.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!window.location.hash) return;
+    setHashTarget(window.location.hash.slice(1));
+  }, []);
+
+  const handleSplashEnter = () => {
+    setShowSplash(false);
+    if (!hashTarget) return;
+    // Wait briefly for the page sections to lay out before scrolling.
+    window.setTimeout(() => {
+      const element = document.getElementById(hashTarget);
+      if (!element) return;
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      window.scrollTo({
+        top: elementPosition + window.scrollY - offset,
+        behavior: "smooth",
+      });
+    }, 300);
+  };
 
   useEffect(() => {
     if (!mapContainer.current || projects.length === 0) return;
@@ -474,8 +505,9 @@ export default function Home() {
       <AnimatePresence>
         {showSplash && (
           <SplashScreen
-            onEnter={() => setShowSplash(false)}
+            onEnter={handleSplashEnter}
             isMapReady={mapLoaded}
+            autoEnter={hashTarget !== null}
           />
         )}
       </AnimatePresence>
@@ -488,6 +520,18 @@ export default function Home() {
           <ImpactoLogo fill="#D5D6DA" className="w-full h-auto" />
         </a>
         <div className="hidden md:flex gap-8 items-center">
+          <Link
+            href="/voluntariado"
+            className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+          >
+            VOLUNTARIADO
+          </Link>
+          <Link
+            href="/profesionales"
+            className="text-md text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+          >
+            PROFESIONALES
+          </Link>
           <a
             href="#about-us"
             onClick={(e) => handleScroll(e, "about-us")}
@@ -560,6 +604,20 @@ export default function Home() {
               transition={{ duration: 0.2 }}
               className="absolute top-0 left-0 w-full bg-primary shadow-xl flex flex-col items-center pt-24 pb-10 gap-8 md:hidden z-40 border-b border-white/10"
             >
+              <Link
+                href="/voluntariado"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-lg text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+              >
+                VOLUNTARIADO
+              </Link>
+              <Link
+                href="/profesionales"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-lg text-light font-alte-bold hover:text-accent transition-colors tracking-wide"
+              >
+                PROFESIONALES
+              </Link>
               <a
                 href="#about-us"
                 onClick={(e) => {

@@ -6,11 +6,16 @@ import ImpactoLogo from "./ImpactoLogo";
 interface SplashScreenProps {
   onEnter: () => void;
   isMapReady?: boolean;
+  /** When true, auto-call `onEnter` as soon as the map is ready and hide the
+   *  COMENZAR button. Used when the user arrived via a hash anchor — the splash
+   *  acts purely as a loading bridge in that case. */
+  autoEnter?: boolean;
 }
 
 export default function SplashScreen({
   onEnter,
   isMapReady,
+  autoEnter,
 }: SplashScreenProps) {
   const [globeReady, setGlobeReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -19,6 +24,10 @@ export default function SplashScreen({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (autoEnter && isMapReady) onEnter();
+  }, [autoEnter, isMapReady, onEnter]);
 
   return (
     <motion.div
@@ -77,29 +86,42 @@ export default function SplashScreen({
             <ImpactoLogo fill="#FFFFFF" />
           </motion.div>
 
-          {/* BOTÓN "COMENZAR" */}
-          <motion.button
-            onClick={() => {
-              if (isMapReady) onEnter();
-            }}
-            disabled={!isMapReady}
-            initial={{ opacity: 0, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className={`
-               px-8 py-2 rounded-full text-[11px] md:text-lg font-alte-bold uppercase transition-all z-40
-               ${
-                 isMapReady
-                   ? "bg-white text-[#2D2C67] hover:text-xl cursor-pointer pointer-events-auto"
-                   : "bg-white/50 text-white/80 cursor-wait pointer-events-none" // Estilo "Cargando"
-               }
-            `}
-            // Animaciones de hover solo si está listo
-            whileHover={isMapReady ? { scale: 1.05 } : {}}
-            whileTap={isMapReady ? { scale: 0.95 } : {}}
-          >
-            COMENZAR
-          </motion.button>
+          {/* BOTÓN "COMENZAR" — only when the user is meant to interact.
+              In autoEnter mode (came via hash) we just show a subtle loading
+              indicator while the map finishes initializing. */}
+          {autoEnter ? (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="text-white/70 text-[11px] md:text-sm font-alte-bold uppercase tracking-widest animate-pulse"
+            >
+              Cargando…
+            </motion.span>
+          ) : (
+            <motion.button
+              onClick={() => {
+                if (isMapReady) onEnter();
+              }}
+              disabled={!isMapReady}
+              initial={{ opacity: 0, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`
+                 px-8 py-2 rounded-full text-[11px] md:text-lg font-alte-bold uppercase transition-all z-40
+                 ${
+                   isMapReady
+                     ? "bg-white text-[#2D2C67] hover:text-xl cursor-pointer pointer-events-auto"
+                     : "bg-white/50 text-white/80 cursor-wait pointer-events-none" // Estilo "Cargando"
+                 }
+              `}
+              // Animaciones de hover solo si está listo
+              whileHover={isMapReady ? { scale: 1.05 } : {}}
+              whileTap={isMapReady ? { scale: 0.95 } : {}}
+            >
+              COMENZAR
+            </motion.button>
+          )}
         </div>
       )}
     </motion.div>
