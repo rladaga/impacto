@@ -14,6 +14,12 @@ import {
 } from "@tanstack/react-table";
 import MultiSelect from "@/components/MultiSelect";
 import imageCompression from "browser-image-compression";
+import {
+  ProfessionalsTab,
+  OpportunitiesTab,
+  VolunteersTab,
+  MeetingsTab,
+} from "./CommunitySections";
 
 interface Contact {
   id: string;
@@ -158,7 +164,14 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type TabType = "contacts" | "projects" | "config";
+type TabType =
+  | "contacts"
+  | "projects"
+  | "professionals"
+  | "opportunities"
+  | "volunteers"
+  | "meetings"
+  | "config";
 
 function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("contacts");
@@ -591,7 +604,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-          <div className="flex border-b border-gray-200">
+          <div className="flex flex-wrap border-b border-gray-200">
             <button
               onClick={() => {
                 setActiveTab("contacts");
@@ -615,6 +628,46 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               }`}
             >
               Proyectos ({projects.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("professionals")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "professionals"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Profesionales
+            </button>
+            <button
+              onClick={() => setActiveTab("opportunities")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "opportunities"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Oportunidades
+            </button>
+            <button
+              onClick={() => setActiveTab("volunteers")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "volunteers"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Voluntarios
+            </button>
+            <button
+              onClick={() => setActiveTab("meetings")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "meetings"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Encuentros
             </button>
             <button
               onClick={() => setActiveTab("config")}
@@ -669,6 +722,54 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
                   setShowProjectModal(true);
                 }}
               />
+            </motion.div>
+          )}
+
+          {activeTab === "professionals" && (
+            <motion.div
+              key="professionals"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ProfessionalsTab />
+            </motion.div>
+          )}
+
+          {activeTab === "opportunities" && (
+            <motion.div
+              key="opportunities"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <OpportunitiesTab />
+            </motion.div>
+          )}
+
+          {activeTab === "volunteers" && (
+            <motion.div
+              key="volunteers"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <VolunteersTab />
+            </motion.div>
+          )}
+
+          {activeTab === "meetings" && (
+            <motion.div
+              key="meetings"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <MeetingsTab />
             </motion.div>
           )}
 

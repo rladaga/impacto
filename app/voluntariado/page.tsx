@@ -1,40 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 import ImpactoLogo from "../../components/ImpactoLogo";
 import ImpactoLogoChico from "../../components/ImpactoLogoChico";
-
-const MOCK_OPPORTUNITIES = [
-  {
-    id: "1",
-    title: "Ayudante de Taller",
-    entity: "Manos en Red",
-    area: "Arte y Acompañamiento",
-    about_project:
-      "Manos en Red es un espacio de arte inclusivo que trabaja con niños y jóvenes con discapacidad intelectual y trastornos del desarrollo, promoviendo la expresión creativa como herramienta de integración y autonomía.",
-    role: "La persona voluntaria acompañará las actividades artísticas semanales y colaborará en la preparación del espacio. Buscamos personas con interés en el arte y compromiso con la inclusión.",
-    image_url: "/images/manos-en-red.jpg",
-    location: "Barcelona, Gracia",
-    hours: "4 horas semanales",
-    start_date: "Desde Marzo 2026",
-  },
-  {
-    id: "2",
-    title: "Soporte en talleres de arte",
-    entity: "uTOpia barcelona",
-    area: "Teatro y Expresión",
-    about_project:
-      "Apoyo en la logística y acompañamiento de los participantes durante nuestros talleres de teatro foro.",
-    role: "Buscamos voluntarios comprometidos con la inclusión que ayuden en la facilitación de actividades y aseguren una experiencia positiva para todos los participantes.",
-    image_url: "/images/utopia.jpg",
-    location: "Barcelona, Sant Martí",
-    hours: "3 horas semanales",
-    start_date: "Desde Abril 2026",
-  },
-];
 
 interface Opportunity {
   id: string;
@@ -47,6 +18,7 @@ interface Opportunity {
   location: string;
   hours: string;
   start_date: string;
+  is_active?: boolean;
 }
 
 const DECORATIVE_DOTS = [
@@ -69,6 +41,23 @@ export default function VoluntariadoPage() {
     useState<Opportunity | null>(null);
   const [currentOpportunitiesIndex, setCurrentOpportunitiesIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [loadingOpportunities, setLoadingOpportunities] = useState(true);
+
+  // Active opportunities from Supabase (`volunteer_opportunities`).
+  useEffect(() => {
+    fetch("/api/opportunities")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) =>
+        setOpportunities(
+          Array.isArray(data)
+            ? data.filter((o: Opportunity) => o.is_active !== false)
+            : [],
+        ),
+      )
+      .catch(() => setOpportunities([]))
+      .finally(() => setLoadingOpportunities(false));
+  }, []);
 
   const openModal = (opportunity?: Opportunity) => {
     setSelectedOpportunity(opportunity || null);
@@ -80,35 +69,47 @@ export default function VoluntariadoPage() {
     setTimeout(() => setSelectedOpportunity(null), 300);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
-    if (selectedOpportunity) {
-      console.log("Postulando a oportunidad:", selectedOpportunity.title, data);
-    } else {
-      console.log("Creando perfil general de voluntario:", data);
-    }
+    // Single form, two modes (PDF): an opportunity_id makes it a postulación
+    // (email entidad + IMPACTO); without it, a perfil stored in the DB.
+    try {
+      const res = await fetch("/api/volunteers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...data,
+          opportunity_id: selectedOpportunity?.id ?? null,
+        }),
+      });
 
-    alert("¡Gracias! Tus datos han sido registrados.");
-    closeModal();
+      if (!res.ok) throw new Error("request failed");
+      alert("¡Gracias! Tus datos han sido registrados.");
+      closeModal();
+    } catch (err) {
+      console.error("Error registrando voluntario:", err);
+      alert("Hubo un error al enviar tus datos. Inténtalo de nuevo.");
+    }
   };
 
   const nextOpportunity = () => {
-    setCurrentOpportunitiesIndex(
-      (prev) => (prev + 1) % MOCK_OPPORTUNITIES.length,
+    setCurrentOpportunitiesIndex((prev) =>
+      opportunities.length ? (prev + 1) % opportunities.length : 0,
     );
   };
 
   const prevOpportunity = () => {
-    setCurrentOpportunitiesIndex(
-      (prev) =>
-        (prev - 1 + MOCK_OPPORTUNITIES.length) % MOCK_OPPORTUNITIES.length,
+    setCurrentOpportunitiesIndex((prev) =>
+      opportunities.length
+        ? (prev - 1 + opportunities.length) % opportunities.length
+        : 0,
     );
   };
 
-  const currentOpportunity = MOCK_OPPORTUNITIES[currentOpportunitiesIndex];
+  const currentOpportunity = opportunities[currentOpportunitiesIndex];
 
   return (
     <div className="w-full min-h-screen bg-primary flex flex-col">
@@ -337,7 +338,18 @@ export default function VoluntariadoPage() {
               </motion.div>
 
               {/* Carousel */}
-              <div className="relative flex items-center gap-3 md:gap-6">
+              {loadingOpportunities ? (
+                <div className="text-center py-16 text-primary font-alte-bold uppercase tracking-wide">
+                  Cargando oportunidades...
+                </div>
+              ) : !currentOpportunity ? (
+                <div className="text-center py-16 text-primary font-alte-bold uppercase tracking-wide">
+                  No hay oportunidades disponibles ahora mismo.
+                  <br />
+                  Crea tu perfil para futuras búsquedas.
+                </div>
+              ) : (
+                <div className="relative flex items-center gap-3 md:gap-6">
                 {/* Left Arrow */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -545,7 +557,8 @@ export default function VoluntariadoPage() {
                     />
                   </svg>
                 </motion.button>
-              </div>
+                </div>
+              )}
             </div>
           </section>
 
