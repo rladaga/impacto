@@ -28,6 +28,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Blocking, inline and deliberately before any other script: it must run
+            before the first paint. The home page ships the splash in its server
+            HTML, which the browser paints long before React hydrates — so React
+            alone cannot avoid a flash of the globe for visitors who already
+            entered this session. This marks the document instead, and the rule in
+            globals.css hides the splash from the very first frame. Client-side
+            navigations back to `/` don't re-run this; the layout effect in
+            app/page.tsx covers those (no server paint happens there). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem("impacto:splash-seen"))document.documentElement.dataset.splashSeen="1"}catch(e){}`,
+          }}
+        />
         <script src="//cdn.jsdelivr.net/npm/globe.gl" async defer></script>
       </head>
       <body

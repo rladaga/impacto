@@ -309,33 +309,65 @@ function ProfessionalModal({
           />
         </Field>
 
-        <Field label="Foto">
+        <Field label="Foto de perfil">
           {form.photo ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={form.photo}
                 alt=""
-                className="w-16 h-16 rounded-full object-cover"
+                className="w-20 h-20 rounded-full object-cover ring-2 ring-secondary/40"
               />
-              <button
-                type="button"
-                onClick={() => set("photo", "")}
-                className="text-red-600 text-sm underline"
-              >
-                Quitar
-              </button>
+              <div className="flex flex-col gap-2">
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary/10 text-secondary text-sm font-medium rounded-lg cursor-pointer hover:bg-secondary/20 transition w-fit">
+                  Cambiar foto
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => set("photo", "")}
+                  className="text-red-600 text-sm underline w-fit cursor-pointer"
+                >
+                  Quitar foto
+                </button>
+              </div>
             </div>
           ) : (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleUpload}
-              disabled={uploading}
-              className="text-sm text-dark"
-            />
+            <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-secondary transition">
+              <div className="flex flex-col items-center justify-center pointer-events-none">
+                <svg
+                  className="w-10 h-10 text-gray-400 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                  />
+                </svg>
+                <p className="text-sm font-medium text-dark">
+                  {uploading ? "Subiendo..." : "Haz clic para subir una foto"}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP</p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
           )}
-          {uploading && <p className="text-xs text-gray-500">Subiendo...</p>}
         </Field>
 
         <div className="grid grid-cols-2 gap-4">
@@ -813,6 +845,7 @@ interface Volunteer {
 export function VolunteersTab() {
   const [rows, setRows] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Volunteer | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -897,12 +930,20 @@ export function VolunteersTab() {
                     {fmtDate(v.created_at)}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => remove(v)}
-                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium cursor-pointer"
-                    >
-                      Eliminar
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSelected(v)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium cursor-pointer"
+                      >
+                        Ver perfil
+                      </button>
+                      <button
+                        onClick={() => remove(v)}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium cursor-pointer"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -910,7 +951,80 @@ export function VolunteersTab() {
           </table>
         </div>
       )}
+
+      {selected && (
+        <VolunteerDetailModal
+          volunteer={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="py-2 border-b border-gray-100 last:border-0">
+      <p className="text-xs font-bold uppercase tracking-wide text-secondary mb-0.5">
+        {label}
+      </p>
+      <p className="text-dark text-sm whitespace-pre-wrap">{value || "—"}</p>
+    </div>
+  );
+}
+
+function VolunteerDetailModal({
+  volunteer,
+  onClose,
+}: {
+  volunteer: Volunteer;
+  onClose: () => void;
+}) {
+  const v = volunteer;
+  const isPostulation = v.mode === "postulation";
+
+  return (
+    <ModalShell title={v.name} onClose={onClose}>
+      <div className="space-y-1">
+        <div className="mb-4 flex items-center gap-3">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-bold ${isPostulation ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}`}
+          >
+            {isPostulation ? "Postulación" : "Perfil"}
+          </span>
+          <span className="text-gray-400 text-xs">
+            Registrado el {fmtDate(v.created_at)}
+          </span>
+        </div>
+
+        {isPostulation && (
+          <DetailRow
+            label="Oportunidad"
+            value={
+              v.opportunity?.title
+                ? `${v.opportunity.title}${v.opportunity.entity ? ` — ${v.opportunity.entity}` : ""}`
+                : undefined
+            }
+          />
+        )}
+        <DetailRow label="Email" value={v.email} />
+        <DetailRow label="Ciudad" value={v.city} />
+        <DetailRow label="Disponibilidad" value={v.availability} />
+        <DetailRow label="Modalidad" value={v.modality} />
+        <DetailRow label="Intereses" value={v.interests} />
+        <DetailRow label="Experiencia previa" value={v.experience} />
+        <DetailRow label="Motivación" value={v.motivation} />
+      </div>
+
+      <div className="flex justify-end pt-6 mt-2 border-t">
+        <a
+          href={`mailto:${v.email}`}
+          className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition font-medium"
+        >
+          Responder por email
+        </a>
+      </div>
+    </ModalShell>
   );
 }
 

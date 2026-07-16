@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
 import { motion, AnimatePresence } from "motion/react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -13,7 +20,18 @@ import QuestionsSection from "@/components/QuestionsSection";
 import FooterSection from "@/components/FooterSection";
 import Link from "next/link";
 import SplashScreen from "@/components/SplashScreen";
+import ComingSoon from "@/components/ComingSoon";
 import { createClient } from "@/utils/supabase/client";
+
+/** Once the visitor has entered the site, the splash stays out of the way for the
+ *  rest of the tab session — navigating back to `/` lands straight on the map. */
+const SPLASH_SEEN_KEY = "impacto:splash-seen";
+
+/** `useLayoutEffect` on the client so the splash is dropped before the browser
+ *  paints (no globe flash for returning visitors), plain `useEffect` on the
+ *  server to avoid React's SSR warning. */
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 interface Project {
   id: number;
@@ -77,12 +95,14 @@ export default function Home() {
     Record<number, { marker: maplibregl.Marker; el: HTMLElement }>
   >({});
 
+  // Starts `true` so the splash is in the server HTML and the first paint; the
+  // layout effect below drops it before paint if this session already saw it.
   const [showSplash, setShowSplash] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // If the user landed via /#section (e.g. coming from /voluntariado), we keep
-  // the splash visible as a loading bridge and scroll to this anchor once the
-  // map finishes initializing.
+  // If the user landed via /#section (e.g. coming from /voluntariado), scroll to
+  // this anchor — either once the splash's loading bridge lifts, or immediately
+  // when the splash is skipped.
   const [hashTarget, setHashTarget] = useState<string | null>(null);
 
   const [[page, direction], setPage] = useState([0, 0]);
@@ -234,22 +254,10 @@ export default function Home() {
     fetchProjects();
   }, []);
 
-  // If the user lands on `/` with a hash anchor (e.g. /#about-us coming from
-  // /voluntariado), record the target. The splash stays up as a loading bridge
-  // until the map is ready, then auto-dismisses (via SplashScreen autoEnter)
-  // and we scroll to the section in the splash's onEnter callback.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!window.location.hash) return;
-    setHashTarget(window.location.hash.slice(1));
-  }, []);
-
-  const handleSplashEnter = () => {
-    setShowSplash(false);
-    if (!hashTarget) return;
-    // Wait briefly for the page sections to lay out before scrolling.
+  // Wait briefly for the page sections to lay out before scrolling.
+  const scrollToAnchor = useCallback((anchor: string) => {
     window.setTimeout(() => {
-      const element = document.getElementById(hashTarget);
+      const element = document.getElementById(anchor);
       if (!element) return;
       const offset = 100;
       const elementPosition = element.getBoundingClientRect().top;
@@ -258,7 +266,27 @@ export default function Home() {
         behavior: "smooth",
       });
     }, 300);
-  };
+  }, []);
+
+  // Decide whether the splash runs at all. It is a first-impression screen, so it
+  // plays once per tab session: every later arrival at `/` (the nav logo's `/#top`,
+  // a link from /voluntariado, the back button) goes straight to the map. On the
+  // session's first visit the splash stays up as a loading bridge instead and the
+  // anchor scroll happens in `handleSplashEnter`.
+  useIsomorphicLayoutEffect(() => {
+    const anchor = window.location.hash ? window.location.hash.slice(1) : null;
+    setHashTarget(anchor);
+
+    if (!window.sessionStorage.getItem(SPLASH_SEEN_KEY)) return;
+    setShowSplash(false);
+    if (anchor) scrollToAnchor(anchor);
+  }, [scrollToAnchor]);
+
+  const handleSplashEnter = useCallback(() => {
+    window.sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
+    setShowSplash(false);
+    if (hashTarget) scrollToAnchor(hashTarget);
+  }, [hashTarget, scrollToAnchor]);
 
   useEffect(() => {
     if (!mapContainer.current || projects.length === 0) return;
@@ -266,16 +294,17 @@ export default function Home() {
     // Verificar si el mapa ya existe
     if (map.current) return;
 
-    // Inicializar RTL plugin solo en cliente
-    if (typeof window !== "undefined") {
-      try {
-        maplibregl.setRTLTextPlugin(
+    // Inicializar RTL plugin solo en cliente. maplibre-gl v5 devuelve una Promise
+    // y rechaza si el plugin ya fue registrado (pasa en cada remount / Fast
+    // Refresh), así que hay que consultar el estado antes y capturar el rechazo:
+    // un try/catch no alcanza para una Promise.
+    if (maplibregl.getRTLTextPluginStatus() === "unavailable") {
+      maplibregl
+        .setRTLTextPlugin(
           "https://cdn.maptiler.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js",
           true,
-        );
-      } catch (e) {
-        console.warn("RTL text plugin initialization:", e);
-      }
+        )
+        .catch((e) => console.warn("RTL text plugin initialization:", e));
     }
 
     // Initialize map solo una vez
@@ -1083,6 +1112,12 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Frosted "Próximamente" gate over the map while project data is finalized. */}
+        <ComingSoon
+          className="absolute inset-0"
+          subtitle="Estamos cargando el mapa de proyectos. Muy pronto vas a poder explorarlos aquí."
+        />
       </section>
 
       <HeroSubtitleSection />

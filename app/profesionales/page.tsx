@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ImpactoLogo from "../../components/ImpactoLogo";
 import ImpactoLogoChico from "../../components/ImpactoLogoChico";
+import ComingSoon from "../../components/ComingSoon";
 
 /* ---------------------------------------------------------------------------
    Profiles are loaded from Supabase (`professionals` table — the "Profesionales"
@@ -35,10 +36,19 @@ interface Professional {
 /* Filter option lists — derived loosely from the data, matching the brief's
    four filters: Especialidad, Modalidad, Zona, Edad. */
 const FILTERS = {
-  especialidad: ["Psicología", "Musicoterapia", "Fonoaudiología", "Trabajo Social"],
+  especialidad: [
+    "Psicología",
+    "Musicoterapia",
+    "Fonoaudiología",
+    "Trabajo Social",
+  ],
   modalidad: ["Presencial", "Remoto", "Remoto y presencial"],
   zona: ["Eixample", "Gràcia", "Les Corts", "Sants-Montjuïc"],
-  edad: ["Niños y adolescentes", "Adultos y personas mayores", "Todas las edades"],
+  edad: [
+    "Niños y adolescentes",
+    "Adultos y personas mayores",
+    "Todas las edades",
+  ],
 };
 
 type FilterKey = keyof typeof FILTERS;
@@ -62,7 +72,12 @@ function initials(name: string) {
 /* Small inline marks ---------------------------------------------------- */
 function PinIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -81,7 +96,12 @@ function PinIcon({ className }: { className?: string }) {
 
 function ModalityIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -94,7 +114,12 @@ function ModalityIcon({ className }: { className?: string }) {
 
 function ArrowIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -142,7 +167,9 @@ export default function ProfesionalesPage() {
 
   // Unified free-encuentro flow (PDF): form → Calendly embed.
   const [encuentroPro, setEncuentroPro] = useState<Professional | null>(null);
-  const [encuentroStep, setEncuentroStep] = useState<"form" | "calendar">("form");
+  const [encuentroStep, setEncuentroStep] = useState<"form" | "calendar">(
+    "form",
+  );
 
   // Profiles come from Supabase (CMS collection "Profesionales"). Returns all;
   // we filter `active` below, same convention as the home map.
@@ -155,7 +182,10 @@ export default function ProfesionalesPage() {
   }, []);
 
   const setFilter = (key: FilterKey, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: prev[key] === value ? "" : value }));
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key] === value ? "" : value,
+    }));
     setOpenFilter(null);
   };
 
@@ -175,7 +205,12 @@ export default function ProfesionalesPage() {
           .toLowerCase();
         if (!haystack.includes(q)) return false;
       }
-      if (filters.especialidad && !p.specialty.toLowerCase().includes(filters.especialidad.toLowerCase().slice(0, 5)))
+      if (
+        filters.especialidad &&
+        !p.specialty
+          .toLowerCase()
+          .includes(filters.especialidad.toLowerCase().slice(0, 5))
+      )
         return false;
       if (filters.modalidad && p.modality !== filters.modalidad) return false;
       if (filters.zona && !p.location.includes(filters.zona)) return false;
@@ -184,8 +219,7 @@ export default function ProfesionalesPage() {
     });
   }, [search, filters, professionals]);
 
-  const selectedPro =
-    professionals.find((p) => p.id === selectedId) ?? null;
+  const selectedPro = professionals.find((p) => p.id === selectedId) ?? null;
 
   const openEncuentro = (pro: Professional) => {
     setEncuentroPro(pro);
@@ -222,7 +256,10 @@ export default function ProfesionalesPage() {
     <div className="w-full min-h-screen bg-primary flex flex-col">
       {/* Nav — identical to the Voluntariado page (PROFESIONALES highlighted). */}
       <nav className="fixed top-0 left-0 w-full h-20 bg-primary z-50 flex items-center justify-between px-4 md:px-8 shadow-lg">
-        <Link href="/#top" className="flex items-center w-32 md:w-40 relative z-50">
+        <Link
+          href="/#top"
+          className="flex items-center w-32 md:w-40 relative z-50"
+        >
           <ImpactoLogo fill="#D5D6DA" className="w-full h-auto" />
         </Link>
 
@@ -273,7 +310,11 @@ export default function ProfesionalesPage() {
               stroke="currentColor"
               className="w-8 h-8"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           ) : (
             <svg
@@ -438,158 +479,186 @@ export default function ProfesionalesPage() {
               "linear-gradient(to bottom, hsla(228, 6%, 85%, 1) 0%, hsla(230, 72%, 75%, 1) 55%, hsla(230, 100%, 65%, 1) 100%)",
           }}
         >
-          <section className="w-full px-4 md:px-8 pt-12 md:pt-16 pb-28 md:pb-44">
-            <div className="max-w-5xl mx-auto">
-              {/* Filters row */}
-              <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-10">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-light shrink-0">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-                    />
-                  </svg>
+          <section className="w-full px-4 md:px-8 pb-28 md:pb-44">
+            {/* Full-bleed frosted "Próximamente" band — covers filters + cards.
+                Top padding lives INSIDE the band so the frost reaches the top of
+                the gradient (no unfrosted light strip above it). */}
+            <div className="relative -mx-4 md:-mx-8">
+              <div className="max-w-5xl mx-auto px-4 md:px-8 pt-12 md:pt-16 pb-24 min-h-[440px]">
+                {/* Filters row */}
+                <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-10">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-light shrink-0">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+                      />
+                    </svg>
+                  </div>
+
+                  {(Object.keys(FILTERS) as FilterKey[]).map((key) => (
+                    <div key={key} className="relative">
+                      <button
+                        onClick={() =>
+                          setOpenFilter(openFilter === key ? null : key)
+                        }
+                        className={`flex items-center gap-2 rounded-full px-4 py-2 border transition-colors font-alte text-sm ${
+                          filters[key]
+                            ? "bg-secondary text-white border-secondary"
+                            : "bg-primary text-light border-primary hover:bg-secondary hover:border-secondary"
+                        }`}
+                      >
+                        <span>{filters[key] || FILTER_LABELS[key]}</span>
+                        <svg
+                          className={`w-3 h-3 transition-transform ${openFilter === key ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+
+                      <AnimatePresence>
+                        {openFilter === key && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute left-0 top-full mt-2 z-30 min-w-[200px] bg-white rounded-2xl shadow-xl border border-primary/10 p-2"
+                          >
+                            {FILTERS[key].map((opt) => (
+                              <button
+                                key={opt}
+                                onClick={() => setFilter(key, opt)}
+                                className={`w-full text-left px-3 py-2 rounded-xl text-sm font-alte transition-colors ${
+                                  filters[key] === opt
+                                    ? "bg-secondary text-white"
+                                    : "text-dark hover:bg-secondary/10"
+                                }`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+
+                  {(filters.especialidad ||
+                    filters.modalidad ||
+                    filters.zona ||
+                    filters.edad) && (
+                    <button
+                      onClick={() =>
+                        setFilters({
+                          especialidad: "",
+                          modalidad: "",
+                          zona: "",
+                          edad: "",
+                        })
+                      }
+                      className="text-primary/70 hover:text-primary text-sm font-alte underline ml-1"
+                    >
+                      Limpiar
+                    </button>
+                  )}
                 </div>
 
-                {(Object.keys(FILTERS) as FilterKey[]).map((key) => (
-                  <div key={key} className="relative">
-                    <button
-                      onClick={() => setOpenFilter(openFilter === key ? null : key)}
-                      className={`flex items-center gap-2 rounded-full px-4 py-2 border transition-colors font-alte text-sm ${
-                        filters[key]
-                          ? "bg-secondary text-white border-secondary"
-                          : "bg-primary text-light border-primary hover:bg-secondary hover:border-secondary"
-                      }`}
+                {/* Cards grid — Figma spec: 544×590 portrait cards, 230px avatar top-left. */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 max-w-[1136px] mx-auto">
+                  {loading && (
+                    <div className="sm:col-span-2 text-center py-16 text-primary/70 font-alte">
+                      Cargando profesionales...
+                    </div>
+                  )}
+
+                  {!loading && filtered.length === 0 && (
+                    <div className="sm:col-span-2 text-center py-16 text-primary/70 font-alte">
+                      No encontramos profesionales con esos criterios.
+                    </div>
+                  )}
+
+                  {filtered.map((pro) => (
+                    <motion.div
+                      key={pro.id}
+                      layout
+                      className="bg-light/85 backdrop-blur-sm rounded-[28px] shadow-lg border border-white/40 p-7 md:p-10 flex flex-col min-h-[540px] md:min-h-[590px]"
                     >
-                      <span>{filters[key] || FILTER_LABELS[key]}</span>
-                      <svg
-                        className={`w-3 h-3 transition-transform ${openFilter === key ? "rotate-180" : ""}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    <AnimatePresence>
-                      {openFilter === key && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute left-0 top-full mt-2 z-30 min-w-[200px] bg-white rounded-2xl shadow-xl border border-primary/10 p-2"
-                        >
-                          {FILTERS[key].map((opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => setFilter(key, opt)}
-                              className={`w-full text-left px-3 py-2 rounded-xl text-sm font-alte transition-colors ${
-                                filters[key] === opt
-                                  ? "bg-secondary text-white"
-                                  : "text-dark hover:bg-secondary/10"
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-
-                {(filters.especialidad || filters.modalidad || filters.zona || filters.edad) && (
-                  <button
-                    onClick={() =>
-                      setFilters({ especialidad: "", modalidad: "", zona: "", edad: "" })
-                    }
-                    className="text-primary/70 hover:text-primary text-sm font-alte underline ml-1"
-                  >
-                    Limpiar
-                  </button>
-                )}
-              </div>
-
-              {/* Cards grid — built to the Figma "Profesionales" layer spec:
-                  544×590 portrait cards, 230px avatar top-left with identity
-                  beside it, tags stacked one-per-row, VER PERFIL centered.
-                  Two columns of 544 + 48px gap ≈ 1136px container. */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 max-w-[1136px] mx-auto">
-                {loading && (
-                  <div className="sm:col-span-2 text-center py-16 text-primary/70 font-alte">
-                    Cargando profesionales...
-                  </div>
-                )}
-
-                {!loading && filtered.length === 0 && (
-                  <div className="sm:col-span-2 text-center py-16 text-primary/70 font-alte">
-                    No encontramos profesionales con esos criterios.
-                  </div>
-                )}
-
-                {filtered.map((pro) => (
-                  <motion.div
-                    key={pro.id}
-                    layout
-                    className="bg-light/85 backdrop-blur-sm rounded-[28px] shadow-lg border border-white/40 p-7 md:p-10 flex flex-col min-h-[540px] md:min-h-[590px]"
-                  >
-                    {/* Header: 230px avatar + identity (vertically centered) */}
-                    <div className="flex items-center gap-5 md:gap-6 mb-6">
-                      <Avatar
-                        pro={pro}
-                        className="w-32 h-32 md:w-[200px] md:h-[200px] shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xl md:text-2xl font-alte-bold text-primary uppercase leading-tight">
-                          {pro.name},
-                        </h3>
-                        <p className="text-secondary font-alte-bold uppercase text-base md:text-lg leading-tight mt-1">
-                          {pro.specialty}
-                        </p>
-                        <div className="mt-3 flex flex-col gap-1.5 text-primary/75 text-sm font-alte">
-                          <span className="flex items-center gap-2">
-                            <PinIcon className="w-4 h-4 text-secondary shrink-0" />
-                            {pro.location}
-                          </span>
-                          <span className="flex items-center gap-2">
-                            <ModalityIcon className="w-4 h-4 text-secondary shrink-0" />
-                            {pro.modality}
-                          </span>
+                      {/* Header: 230px avatar + identity (vertically centered) */}
+                      <div className="flex items-center gap-5 md:gap-6 mb-6">
+                        <Avatar
+                          pro={pro}
+                          className="w-32 h-32 md:w-[200px] md:h-[200px] shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl md:text-2xl font-alte-bold text-primary uppercase leading-tight">
+                            {pro.name},
+                          </h3>
+                          <p className="text-secondary font-alte-bold uppercase text-base md:text-lg leading-tight mt-1">
+                            {pro.specialty}
+                          </p>
+                          <div className="mt-3 flex flex-col gap-1.5 text-primary/75 text-sm font-alte">
+                            <span className="flex items-center gap-2">
+                              <PinIcon className="w-4 h-4 text-secondary shrink-0" />
+                              {pro.location}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <ModalityIcon className="w-4 h-4 text-secondary shrink-0" />
+                              {pro.modality}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Tags — stacked, each on its own row, left-aligned */}
-                    <div className="flex flex-col items-start gap-2 mb-5">
-                      {[...pro.disabilities, ...pro.ages].map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-secondary text-white text-[11px] font-alte uppercase tracking-wide px-4 py-1.5 rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                      {/* Tags — stacked, each on its own row, left-aligned */}
+                      <div className="flex flex-col items-start gap-2 mb-5">
+                        {[...pro.disabilities, ...pro.ages].map((tag) => (
+                          <span
+                            key={tag}
+                            className="bg-secondary text-white text-[11px] font-alte uppercase tracking-wide px-4 py-1.5 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
 
-                    <p className="text-primary/80 font-alte text-sm md:text-[15px] leading-relaxed mb-6">
-                      {pro.description_short}
-                    </p>
+                      <p className="text-primary/80 font-alte text-sm md:text-[15px] leading-relaxed mb-6">
+                        {pro.description_short}
+                      </p>
 
-                    <button
-                      onClick={() => setSelectedId(pro.id)}
-                      className="mt-auto mx-auto inline-flex items-center justify-center gap-2 bg-primary text-light font-alte-bold text-sm uppercase tracking-wide rounded-full px-10 py-3.5 hover:bg-secondary transition-colors cursor-pointer"
-                    >
-                      <ArrowIcon className="w-4 h-4" />
-                      Ver perfil
-                    </button>
-                  </motion.div>
-                ))}
+                      <button
+                        onClick={() => setSelectedId(pro.id)}
+                        className="mt-auto mx-auto inline-flex items-center justify-center gap-2 bg-primary text-light font-alte-bold text-sm uppercase tracking-wide rounded-full px-10 py-3.5 hover:bg-secondary transition-colors cursor-pointer"
+                      >
+                        <ArrowIcon className="w-4 h-4" />
+                        Ver perfil
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
+              <ComingSoon
+                className="absolute inset-0"
+                subtitle="El directorio de profesionales estará disponible muy pronto."
+              />
+            </div>
 
+            <div className="max-w-5xl mx-auto">
               {/* Tagline */}
               <div className="text-center mt-28 md:mt-40">
                 <div className="mx-auto w-40 h-40 md:w-52 md:h-52 relative mb-8">
@@ -633,8 +702,18 @@ export default function ProfesionalesPage() {
                   aria-label="Cerrar perfil"
                   className="absolute top-5 right-5 z-10 text-primary/60 hover:text-primary transition-colors bg-white/70 hover:bg-white rounded-full p-2"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
 
@@ -642,7 +721,12 @@ export default function ProfesionalesPage() {
                   {/* Left: photo */}
                   <div className="md:col-span-5 relative rounded-2xl overflow-hidden min-h-[280px] md:min-h-[440px] ring-1 ring-primary/10">
                     {selectedPro.photo ? (
-                      <Image src={selectedPro.photo} alt={selectedPro.name} fill className="object-cover" />
+                      <Image
+                        src={selectedPro.photo}
+                        alt={selectedPro.name}
+                        fill
+                        className="object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full bg-linear-to-br from-secondary to-primary flex items-center justify-center">
                         <span className="text-white/90 font-alte-bold text-6xl">
@@ -682,14 +766,16 @@ export default function ProfesionalesPage() {
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {[...selectedPro.disabilities, ...selectedPro.ages].map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-secondary text-white text-[11px] font-alte uppercase tracking-wide px-3 py-1 rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {[...selectedPro.disabilities, ...selectedPro.ages].map(
+                        (tag) => (
+                          <span
+                            key={tag}
+                            className="bg-secondary text-white text-[11px] font-alte uppercase tracking-wide px-3 py-1 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ),
+                      )}
                       <span className="bg-primary/10 text-primary text-[11px] font-alte uppercase tracking-wide px-3 py-1 rounded-full">
                         {selectedPro.experience_years} años de experiencia
                       </span>
@@ -759,8 +845,18 @@ export default function ProfesionalesPage() {
                     className="absolute top-6 right-6 text-gray-400 hover:text-dark transition bg-gray-200 hover:bg-gray-300 rounded-full p-2"
                     aria-label="Cerrar"
                   >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                   <p className="text-secondary font-alte-bold uppercase text-xs tracking-widest mb-1">
@@ -774,8 +870,11 @@ export default function ProfesionalesPage() {
                   <p className="text-dark/70 font-alte mt-2 text-sm">
                     {encuentroStep === "form" ? (
                       <>
-                        Con <strong className="text-secondary">{encuentroPro.name}</strong> ·{" "}
-                        {encuentroPro.specialty}
+                        Con{" "}
+                        <strong className="text-secondary">
+                          {encuentroPro.name}
+                        </strong>{" "}
+                        · {encuentroPro.specialty}
                       </>
                     ) : (
                       "Videollamada gratuita de 30 minutos. Elige el día y la hora que mejor te vengan."
@@ -786,7 +885,10 @@ export default function ProfesionalesPage() {
                 {/* Body */}
                 <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar">
                   {encuentroStep === "form" ? (
-                    <form onSubmit={handleEncuentroSubmit} className="space-y-5">
+                    <form
+                      onSubmit={handleEncuentroSubmit}
+                      className="space-y-5"
+                    >
                       <div>
                         <label className="block text-secondary text-sm font-alte-bold mb-2 uppercase tracking-wide">
                           Nombre *
@@ -822,8 +924,8 @@ export default function ProfesionalesPage() {
                         />
                       </div>
                       <p className="text-dark/50 text-xs font-alte">
-                        Tu mensaje se gestiona a través de IMPACTO para garantizar un
-                        contacto seguro y acompañado.
+                        Tu mensaje se gestiona a través de IMPACTO para
+                        garantizar un contacto seguro y acompañado.
                       </p>
                       <button
                         type="submit"
@@ -893,20 +995,28 @@ export default function ProfesionalesPage() {
                 >
                   Instagram
                 </a>
-                <a href="tel:+34613036362" className="hover:text-accent transition-colors">
+                <a
+                  href="tel:+34613036362"
+                  className="hover:text-accent transition-colors"
+                >
                   +34 613 03 63 62
                 </a>
               </div>
 
               <div className="flex flex-col gap-3">
-                <h4 className="font-alte-bold text-secondary">Colabora con nosotros</h4>
+                <h4 className="font-alte-bold text-secondary">
+                  Colabora con nosotros
+                </h4>
                 <a
                   href="mailto:crew.impacto@gmail.com"
                   className="hover:text-accent transition-colors"
                 >
                   crew.impacto@gmail.com
                 </a>
-                <a href="/contact" className="hover:text-accent transition-colors">
+                <a
+                  href="/contact"
+                  className="hover:text-accent transition-colors"
+                >
                   Súmate aquí
                 </a>
               </div>

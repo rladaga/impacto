@@ -133,3 +133,10 @@ body {
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
   background-color: #efefef;
 }
+
+/* The splash plays once per tab session. The inline script in app/layout.tsx sets
+   this attribute before the first paint, so the server-rendered splash is hidden
+   from frame one for visitors who already entered — React then unmounts it. */
+html[data-splash-seen] #splash-root {
+  display: none;
+}

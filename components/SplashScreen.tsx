@@ -17,12 +17,17 @@ export default function SplashScreen({
   isMapReady,
   autoEnter,
 }: SplashScreenProps) {
-  const [globeReady, setGlobeReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    // Fallback: on some mobile browsers the video's `canplaythrough`/`loadeddata`
+    // events fire late or not at all for muted autoplay, which would leave the
+    // COMENZAR button hidden forever. Reveal the UI after a short delay no matter
+    // what so the user is never stuck on the splash.
+    const t = window.setTimeout(() => setVideoReady(true), 2500);
+    return () => window.clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -31,6 +36,9 @@ export default function SplashScreen({
 
   return (
     <motion.div
+      // `#splash-root` is the hook the pre-paint script in app/layout.tsx targets
+      // via globals.css to hide this without waiting for hydration.
+      id="splash-root"
       className="fixed inset-0 z-9999 overflow-hidden bg-black"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
@@ -54,7 +62,10 @@ export default function SplashScreen({
             autoPlay
             muted
             loop
-            onCanPlayThrough={() => setVideoReady(true)}
+            playsInline
+            preload="auto"
+            onLoadedData={() => setVideoReady(true)}
+            onCanPlay={() => setVideoReady(true)}
             className="w-screen h-screen md:w-screen md:h-screen transition-opacity duration-1000 ease-out object-cover"
             style={{ opacity: videoReady ? 1 : 0 }}
           >

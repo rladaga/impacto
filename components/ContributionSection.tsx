@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 
 const actions = [
   { label: "SUMA TU PROYECTO", href: "/contact?type=proyecto/asociacion" },
-  { label: "VOLUNTARIADO DIGITAL", href: "/contact?type=voluntariado" },
+  { label: "VOLUNTARIADO DIGITAL", href: "/voluntariado" },
   { label: "SE SOCIO", href: "/contact?type=socio" },
   { label: "PATROCINIO Y ALIANZAS", href: "/contact?type=patrocinio" },
 ];
