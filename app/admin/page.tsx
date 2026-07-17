@@ -12,7 +12,14 @@ import {
   flexRender,
   ColumnDef,
 } from "@tanstack/react-table";
-import { create } from "domain";
+import MultiSelect from "@/components/MultiSelect";
+import imageCompression from "browser-image-compression";
+import {
+  ProfessionalsTab,
+  OpportunitiesTab,
+  VolunteersTab,
+  MeetingsTab,
+} from "./CommunitySections";
 
 interface Contact {
   id: string;
@@ -27,13 +34,31 @@ interface Contact {
 interface Project {
   id: string;
   name: string;
-  project_type: string;
   audience: string;
   disability_type: string;
   description: string;
   address: string;
+  services: string;
   contact: string;
   created_at?: string;
+  lng?: string;
+  lat?: string;
+  image_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  email?: string;
+  activity_type?: string;
+  modality?: string;
+  accessibility?: string;
+  age?: string;
+  is_active?: boolean;
+}
+
+interface CategoryOption {
+  id: string;
+  category: string;
+  value: string;
+  is_active: boolean;
 }
 
 export default function AdminPage() {
@@ -139,12 +164,20 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type TabType = "contacts" | "projects";
+type TabType =
+  | "contacts"
+  | "projects"
+  | "professionals"
+  | "opportunities"
+  | "volunteers"
+  | "meetings"
+  | "config";
 
 function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("contacts");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<any>([]);
   const [filtering, setFiltering] = useState("");
@@ -153,12 +186,22 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectFormData, setProjectFormData] = useState<Omit<Project, "id">>({
     name: "",
-    project_type: "",
     audience: "",
     disability_type: "",
     description: "",
     address: "",
     contact: "",
+    lng: "",
+    lat: "",
+    image_url: "",
+    services: "",
+    facebook_url: "",
+    instagram_url: "",
+    email: "",
+    activity_type: "",
+    modality: "",
+    accessibility: "",
+    age: "",
   });
 
   const supabase = createClient();
@@ -169,8 +212,34 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchContacts(), fetchProjects()]);
+    await Promise.all([
+      fetchContacts(),
+      fetchProjects(),
+      fetchCategoryOptions(),
+    ]);
     setLoading(false);
+  };
+
+  const handleToggleProjectStatus = async (
+    id: string,
+    currentStatus: boolean,
+  ) => {
+    try {
+      const response = await fetch("/api/projects", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          is_active: !currentStatus,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchProjects();
+      }
+    } catch (error) {
+      console.error("Error toggling project status:", error);
+    }
   };
 
   const fetchContacts = async () => {
@@ -197,6 +266,16 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
+    }
+  };
+
+  const fetchCategoryOptions = async () => {
+    const { data } = await supabase
+      .from("config_options")
+      .select("*")
+      .order("value");
+    if (data) {
+      setCategoryOptions(data);
     }
   };
 
@@ -238,13 +317,25 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     }
   };
 
-  const handleDeleteProject = async (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este proyecto?")) {
+  const handleDeleteProject = async (project: Project) => {
+    if (
+      confirm(
+        "¿Estás seguro de que quieres eliminar este proyecto y su imagen?",
+      )
+    ) {
       try {
+        // 1. Delete image from Storage if it exists
+        if (project.image_url) {
+          await supabase.storage
+            .from("project-images")
+            .remove([project.image_url]);
+        }
+
+        // 2. Delete the database record
         const response = await fetch("/api/projects", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ id: project.id }),
         });
 
         if (response.ok) {
@@ -260,12 +351,22 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     setEditingProject(project);
     setProjectFormData({
       name: project.name,
-      project_type: project.project_type,
       audience: project.audience,
       disability_type: project.disability_type,
       description: project.description,
       address: project.address,
       contact: project.contact,
+      lng: project.lng || "",
+      lat: project.lat || "",
+      services: project.services || "",
+      facebook_url: project.facebook_url || "",
+      instagram_url: project.instagram_url || "",
+      image_url: project.image_url || "",
+      email: project.email || "",
+      activity_type: project.activity_type || "",
+      modality: project.modality || "",
+      accessibility: project.accessibility || "",
+      age: project.age || "",
     });
     setShowProjectModal(true);
   };
@@ -273,12 +374,22 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const resetProjectForm = () => {
     setProjectFormData({
       name: "",
-      project_type: "",
       audience: "",
       disability_type: "",
       description: "",
       address: "",
       contact: "",
+      lng: "",
+      lat: "",
+      services: "",
+      facebook_url: "",
+      instagram_url: "",
+      image_url: "",
+      email: "",
+      activity_type: "",
+      modality: "",
+      accessibility: "",
+      age: "",
     });
     setEditingProject(null);
   };
@@ -287,6 +398,27 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     return Array.from(new Set(contacts.map((c) => c[columnKey])))
       .filter((v) => v !== null && v !== "")
       .sort() as string[];
+  };
+
+  const getOptions = (category: string) => {
+    return categoryOptions
+      .filter((o) => o.category === category && o.is_active)
+      .map((o) => o.value);
+  };
+
+  const handleToggleOption = async (id: string, currentStatus: boolean) => {
+    await supabase
+      .from("config_options")
+      .update({ is_active: !currentStatus })
+      .eq("id", id);
+    fetchCategoryOptions();
+  };
+
+  const handleAddOption = async (category: string, value: string) => {
+    await supabase
+      .from("config_options")
+      .insert({ category, value, is_active: true });
+    fetchCategoryOptions();
   };
 
   const contactColumns = useMemo<ColumnDef<Contact>[]>(
@@ -318,7 +450,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           new Date(info.getValue() as string).toLocaleDateString("es-ES"),
       },
     ],
-    []
+    [],
   );
 
   const projectColumns = useMemo<ColumnDef<Project>[]>(
@@ -328,24 +460,49 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         header: "Nombre",
       },
       {
-        accessorKey: "project_type",
-        header: "Tipo",
-      },
-      {
         accessorKey: "audience",
-        header: "Audiencia",
+        header: "Público Objetivo",
       },
       {
         accessorKey: "disability_type",
         header: "Tipo de Discapacidad",
       },
+      { accessorKey: "age", header: "Edad" },
+      { accessorKey: "activity_type", header: "Tipo de Actividad" },
+      { accessorKey: "modality", header: "Modalidad" },
+      { accessorKey: "accessibility", header: "Accesibilidad" },
       {
         accessorKey: "address",
         header: "Dirección",
       },
       {
         accessorKey: "contact",
-        header: "Contacto",
+        header: "Página web",
+      },
+      { accessorKey: "lng", header: "Longitud" },
+      { accessorKey: "lat", header: "Latitud" },
+      { accessorKey: "services", header: "Servicios" },
+      { accessorKey: "facebook_url", header: "Facebook" },
+      { accessorKey: "instagram_url", header: "Instagram" },
+      { accessorKey: "email", header: "Email" },
+      {
+        accessorKey: "image_url",
+        header: "Imagen Path",
+      },
+      {
+        accessorKey: "is_active",
+        header: "Estado",
+        cell: ({ row }) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold ${
+              row.original.is_active
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {row.original.is_active ? "Activo" : "Inactivo"}
+          </span>
+        ),
       },
       {
         id: "actions",
@@ -353,13 +510,28 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         cell: ({ row }) => (
           <div className="flex gap-2">
             <button
+              onClick={() =>
+                handleToggleProjectStatus(
+                  row.original.id,
+                  !!row.original.is_active,
+                )
+              }
+              className={`px-3 py-1 rounded text-white transition text-sm font-medium cursor-pointer ${
+                row.original.is_active
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+            >
+              {row.original.is_active ? "Desactivar" : "Activar"}
+            </button>
+            <button
               onClick={() => handleEditProject(row.original)}
               className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium cursor-pointer"
             >
               Editar
             </button>
             <button
-              onClick={() => handleDeleteProject(row.original.id)}
+              onClick={() => handleDeleteProject(row.original)}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium cursor-pointer"
             >
               Eliminar
@@ -368,7 +540,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         ),
       },
     ],
-    []
+    [projects],
   );
 
   const filteredContacts = useMemo(() => {
@@ -376,7 +548,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       const globalMatch =
         filtering === "" ||
         Object.values(contact).some((value) =>
-          String(value).toLowerCase().includes(filtering.toLowerCase())
+          String(value).toLowerCase().includes(filtering.toLowerCase()),
         );
 
       const columnMatch = Object.entries(columnFilters).every(
@@ -385,7 +557,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
           return String(contact[key as keyof Contact])
             .toLowerCase()
             .includes(String(value).toLowerCase());
-        }
+        },
       );
 
       return globalMatch && columnMatch;
@@ -432,7 +604,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-          <div className="flex border-b border-gray-200">
+          <div className="flex flex-wrap border-b border-gray-200">
             <button
               onClick={() => {
                 setActiveTab("contacts");
@@ -456,6 +628,56 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               }`}
             >
               Proyectos ({projects.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("professionals")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "professionals"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Profesionales
+            </button>
+            <button
+              onClick={() => setActiveTab("opportunities")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "opportunities"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Oportunidades
+            </button>
+            <button
+              onClick={() => setActiveTab("volunteers")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "volunteers"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Voluntarios
+            </button>
+            <button
+              onClick={() => setActiveTab("meetings")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "meetings"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Encuentros
+            </button>
+            <button
+              onClick={() => setActiveTab("config")}
+              className={`flex-1 px-6 py-4 font-medium text-center transition ${
+                activeTab === "config"
+                  ? "bg-secondary text-white"
+                  : "bg-gray-50 text-dark hover:bg-gray-100"
+              }`}
+            >
+              Configuración
             </button>
           </div>
         </div>
@@ -502,6 +724,70 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               />
             </motion.div>
           )}
+
+          {activeTab === "professionals" && (
+            <motion.div
+              key="professionals"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ProfessionalsTab />
+            </motion.div>
+          )}
+
+          {activeTab === "opportunities" && (
+            <motion.div
+              key="opportunities"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <OpportunitiesTab />
+            </motion.div>
+          )}
+
+          {activeTab === "volunteers" && (
+            <motion.div
+              key="volunteers"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <VolunteersTab />
+            </motion.div>
+          )}
+
+          {activeTab === "meetings" && (
+            <motion.div
+              key="meetings"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <MeetingsTab />
+            </motion.div>
+          )}
+
+          {activeTab === "config" && (
+            <motion.div
+              key="config"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ConfigTab
+                categoryOptions={categoryOptions}
+                onToggle={handleToggleOption}
+                onAdd={handleAddOption}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
 
@@ -518,6 +804,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
             formData={projectFormData}
             setFormData={setProjectFormData}
             isEditing={!!editingProject}
+            getOptions={getOptions}
           />
         )}
       </AnimatePresence>
@@ -636,7 +923,7 @@ function ContactsTable({
                         <div className="flex items-center gap-2">
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {header.column.getIsSorted() && (
                             <span className="text-secondary">
@@ -663,7 +950,7 @@ function ContactsTable({
                       <td key={cell.id} className="px-6 py-4 text-dark text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}
@@ -746,7 +1033,7 @@ function ProjectsTable({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </th>
                     ))}
@@ -765,7 +1052,7 @@ function ProjectsTable({
                       <td key={cell.id} className="px-6 py-4 text-dark text-sm">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}
@@ -803,6 +1090,99 @@ function ProjectsTable({
   );
 }
 
+interface ConfigTabProps {
+  categoryOptions: CategoryOption[];
+  onToggle: (id: string, currentStatus: boolean) => void;
+  onAdd: (category: string, value: string) => void;
+}
+
+function ConfigTab({ categoryOptions, onToggle, onAdd }: ConfigTabProps) {
+  const [newValues, setNewValues] = useState<Record<string, string>>({});
+
+  const CATEGORIES = [
+    { id: "disability_type", label: "Tipo de Discapacidad" },
+    { id: "age", label: "Edad" },
+    { id: "activity_type", label: "Tipo de Actividad" },
+    { id: "modality", label: "Modalidad" },
+    { id: "accessibility", label: "Accesibilidad" },
+  ];
+
+  const handleAdd = (categoryId: string) => {
+    if (newValues[categoryId]?.trim()) {
+      onAdd(categoryId, newValues[categoryId].trim());
+      setNewValues({ ...newValues, [categoryId]: "" });
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-8">
+      <h2 className="text-2xl font-bold text-dark mb-6">
+        Configuración de Filtros de Búsqueda
+      </h2>
+      <div className="space-y-8">
+        {CATEGORIES.map((cat) => {
+          const options = categoryOptions.filter((o) => o.category === cat.id);
+          return (
+            <div key={cat.id} className="border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-bold text-secondary mb-4 uppercase">
+                {cat.label}
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                {options.map((opt) => (
+                  <div
+                    key={opt.id}
+                    className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded border border-gray-100"
+                  >
+                    <span
+                      className={`text-sm ${
+                        opt.is_active
+                          ? "text-dark font-medium"
+                          : "text-gray-400 line-through"
+                      }`}
+                    >
+                      {opt.value}
+                    </span>
+                    <button
+                      onClick={() => onToggle(opt.id, opt.is_active)}
+                      className={`text-xs px-3 py-1 rounded-full font-medium transition cursor-pointer ${
+                        opt.is_active
+                          ? "bg-red-100 text-red-700 hover:bg-red-200"
+                          : "bg-green-100 text-green-700 hover:bg-green-200"
+                      }`}
+                    >
+                      {opt.is_active ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2 max-w-md">
+                <input
+                  type="text"
+                  placeholder="Nueva opción..."
+                  value={newValues[cat.id] || ""}
+                  onChange={(e) =>
+                    setNewValues({ ...newValues, [cat.id]: e.target.value })
+                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleAdd(cat.id)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-secondary text-sm text-dark outline-none"
+                />
+                <button
+                  onClick={() => handleAdd(cat.id)}
+                  className="px-4 py-2 bg-secondary text-white rounded hover:bg-primary transition text-sm font-medium cursor-pointer"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface ProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -810,6 +1190,7 @@ interface ProjectModalProps {
   formData: Omit<Project, "id">;
   setFormData: (data: Omit<Project, "id">) => void;
   isEditing: boolean;
+  getOptions: (category: string) => string[];
 }
 
 function ProjectModal({
@@ -819,7 +1200,98 @@ function ProjectModal({
   formData,
   setFormData,
   isEditing,
+  getOptions,
 }: ProjectModalProps) {
+  const [uploading, setUploading] = useState(false);
+  const supabase = createClient();
+
+  const getSelected = (val: string | undefined) => {
+    return val
+      ? val
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+  };
+
+  const handleMultiSelectChange = (
+    key: keyof Omit<Project, "id">,
+    selected: string[],
+  ) => {
+    setFormData({ ...formData, [key]: selected.join(", ") });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+
+      if (!formData.name) {
+        alert(
+          "Por favor, ingresa el nombre del proyecto antes de subir una imagen.",
+        );
+        return;
+      }
+
+      const file = e.target.files[0];
+      const options = {
+        maxSizeMB: 1, // Max file size 1MB (Great balance of quality/speed)
+        maxWidthOrHeight: 1920, // Max width/height 1920px
+        useWebWorker: true, // Better performance
+        fileType: "image/jpeg", // Convert to jpeg for consistent compression
+      };
+
+      console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`,
+      );
+
+      const fileExt = "jpg"; // We forced it to jpeg in options
+      const fileName = `${formData.name.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      // 1. Upload to Supabase
+      const { error: uploadError } = await supabase.storage
+        .from("project-images")
+        .upload(filePath, compressedFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. If there was a previous image, delete it
+      if (formData.image_url) {
+        await supabase.storage
+          .from("project-images")
+          .remove([formData.image_url]);
+      }
+
+      // 3. Update form
+      setFormData({ ...formData, image_url: filePath });
+    } catch (error: any) {
+      alert("Error subiendo imagen: " + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    if (!formData.image_url) return;
+
+    try {
+      setUploading(true);
+      const { error } = await supabase.storage
+        .from("project-images")
+        .remove([formData.image_url]);
+
+      if (error) throw error;
+      setFormData({ ...formData, image_url: "" });
+    } catch (error: any) {
+      alert("Error eliminando imagen: " + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -840,96 +1312,73 @@ function ProjectModal({
         </h2>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Nombre *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Nombre *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Tipo de Proyecto *
+          {/* IMAGE UPLOAD SECTION */}
+          <div className="border-b pb-4 mb-4">
+            <label className="block text-sm font-medium text-dark mb-2">
+              Imagen del Proyecto
+            </label>
+            {formData.image_url ? (
+              <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden group">
+                <img
+                  src={
+                    supabase.storage
+                      .from("project-images")
+                      .getPublicUrl(formData.image_url).data.publicUrl
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition shadow-md opacity-0 group-hover:opacity-100"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                  </svg>
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] p-1 truncate">
+                  {formData.image_url}
+                </div>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <p className="mb-2 text-sm text-gray-500">
+                    {uploading ? "Subiendo..." : "Click para subir imagen"}
+                  </p>
+                  <p className="text-xs text-gray-400">PNG, JPG, WEBP</p>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                />
               </label>
-              <input
-                type="text"
-                value={formData.project_type}
-                onChange={(e) =>
-                  setFormData({ ...formData, project_type: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Audiencia *
-              </label>
-              <input
-                type="text"
-                value={formData.audience}
-                onChange={(e) =>
-                  setFormData({ ...formData, audience: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Tipo de Discapacidad *
-              </label>
-              <input
-                type="text"
-                value={formData.disability_type}
-                onChange={(e) =>
-                  setFormData({ ...formData, disability_type: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Dirección *
-              </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-dark mb-2">
-                Contacto *
-              </label>
-              <input
-                type="text"
-                value={formData.contact}
-                onChange={(e) =>
-                  setFormData({ ...formData, contact: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
-                required
-              />
-            </div>
+            )}
           </div>
 
           <div>
@@ -947,6 +1396,179 @@ function ProjectModal({
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Publico objetivo *
+            </label>
+            <input
+              type="text"
+              value={formData.audience}
+              onChange={(e) =>
+                setFormData({ ...formData, audience: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Servicios
+            </label>
+            <input
+              type="text"
+              value={formData.services}
+              onChange={(e) =>
+                setFormData({ ...formData, services: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <MultiSelect
+            label="Tipo de Discapacidad *"
+            options={getOptions("disability_type")}
+            selected={getSelected(formData.disability_type)}
+            onChange={(selected) =>
+              handleMultiSelectChange("disability_type", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Edad *"
+            options={getOptions("age")}
+            selected={getSelected(formData.age)}
+            onChange={(selected) => handleMultiSelectChange("age", selected)}
+          />
+
+          <MultiSelect
+            label="Tipo de Actividad"
+            options={getOptions("activity_type")}
+            selected={getSelected(formData.activity_type)}
+            onChange={(selected) =>
+              handleMultiSelectChange("activity_type", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Modalidad"
+            options={getOptions("modality")}
+            selected={getSelected(formData.modality)}
+            onChange={(selected) =>
+              handleMultiSelectChange("modality", selected)
+            }
+          />
+
+          <MultiSelect
+            label="Accesibilidad"
+            options={getOptions("accessibility")}
+            selected={getSelected(formData.accessibility)}
+            onChange={(selected) =>
+              handleMultiSelectChange("accessibility", selected)
+            }
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Dirección *
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Página web *
+            </label>
+            <input
+              type="text"
+              value={formData.contact}
+              onChange={(e) =>
+                setFormData({ ...formData, contact: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Email *
+            </label>
+            <input
+              type="text"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Facebook URL
+            </label>
+            <input
+              type="text"
+              value={formData.facebook_url}
+              onChange={(e) =>
+                setFormData({ ...formData, facebook_url: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark mb-2">
+              Instagram URL
+            </label>
+            <input
+              type="text"
+              value={formData.instagram_url}
+              onChange={(e) =>
+                setFormData({ ...formData, instagram_url: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark mb-2">
+                Longitud
+              </label>
+              <input
+                type="text"
+                value={formData.lng}
+                onChange={(e) =>
+                  setFormData({ ...formData, lng: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-dark mb-2">
+                Latitud
+              </label>
+              <input
+                type="text"
+                value={formData.lat}
+                onChange={(e) =>
+                  setFormData({ ...formData, lat: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary text-dark"
+              />
+            </div>
+          </div>
+
           <div className="flex gap-4 justify-end pt-4 border-t">
             <button
               type="button"
@@ -957,7 +1579,8 @@ function ProjectModal({
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition font-medium cursor-pointer"
+              disabled={uploading}
+              className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-primary transition font-medium cursor-pointer disabled:opacity-50"
             >
               {isEditing ? "Guardar Cambios" : "Crear Proyecto"}
             </button>

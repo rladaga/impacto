@@ -2,7 +2,8 @@
 
 @font-face {
   font-family: "Archia";
-  src: url("/fonts/archia-regular.woff2") format("woff2"),
+  src:
+    url("/fonts/archia-regular.woff2") format("woff2"),
     url("/fonts/archia-regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
@@ -46,6 +47,7 @@
   --font-intranet-regular: "IntraNet Regular", sans-serif;
   --font-archia: "Archia", sans-serif;
   --font-alte-bold: "Alte Haas Grotesk Bold", sans-serif;
+  --font-alte: "Alte Haas Grotesk Regular", sans-serif;
 }
 
 @theme {
@@ -54,6 +56,51 @@
   --color-accent: #a5afd6;
   --color-light: #d5d6da;
   --color-dark: #25251d;
+}
+
+/* --- Figma typography utilities (Voluntariado page).
+   Sizes are the exact values from Figma — pair with `md:` so mobile stays sane. --- */
+@utility text-hero-title {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 96px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+@utility text-display-subtitle {
+  font-family: "Alte Haas Grotesk Regular", sans-serif;
+  font-weight: 400;
+  font-size: 24.4px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+@utility text-pill-label {
+  font-family: "Alte Haas Grotesk Regular", sans-serif;
+  font-weight: 400;
+  font-size: 23.47px;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+}
+
+@utility text-button-large {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 23.38px;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+@utility text-section-title {
+  font-family: "Alte Haas Grotesk Bold", sans-serif;
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 56px;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,4 +114,29 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Alte Haas Grotesk Regular", Arial, Helvetica, sans-serif;
+}
+
+.maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  text-align: center;
+}
+
+.maplibregl-popup-tip {
+  display: none;
+}
+
+.rounded-project-tooltip .maplibregl-popup-content {
+  border-radius: 9999px !important;
+  padding: 4px 4px !important;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #efefef;
+}
+
+/* The splash plays once per tab session. The inline script in app/layout.tsx sets
+   this attribute before the first paint, so the server-rendered splash is hidden
+   from frame one for visitors who already entered — React then unmounts it. */
+html[data-splash-seen] #splash-root {
+  display: none;
 }

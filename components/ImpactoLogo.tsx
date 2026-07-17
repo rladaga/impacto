@@ -7,12 +7,16 @@ interface LogoProps {
   variants?: Variants;
   initial?: string;
   animate?: string;
+  fill?: string;
+  className?: string; // Nuevo prop para manejar tamaño y posición
 }
 
 export default function ImpactoLogo({
   variants,
   initial = "hidden",
   animate = "visible",
+  fill,
+  className = "w-full h-auto", // Valor por defecto
 }: LogoProps) {
   const [hoveredLetter, setHoveredLetter] = useState<string | null>(null);
 
@@ -83,16 +87,14 @@ export default function ImpactoLogo({
 
   return (
     <motion.svg
-      width="100%"
-      height="auto"
       viewBox="-100 -150 7085 1300"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="mx-auto lg:w-140 h-auto"
+      className={className} // Aquí está la magia: usamos la clase que pasamos
       variants={variants}
       initial={initial}
       animate={animate}
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="xMinYMid meet" // Alineado a la izquierda (xMin)
     >
       {letterPaths.map((letter) => (
         <motion.g
@@ -108,7 +110,7 @@ export default function ImpactoLogo({
           }}
         >
           {letter.paths.map((path, pathIndex) => (
-            <path key={pathIndex} d={path.d} fill="#4A69FF" />
+            <path key={pathIndex} d={path.d} fill={fill || "#4A69FF"} />
           ))}
         </motion.g>
       ))}
