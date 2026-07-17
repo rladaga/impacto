@@ -276,7 +276,7 @@ export default function VoluntariadoPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-5xl md:text-hero-title mb-6"
+              className="font-alte-bold uppercase text-5xl md:text-hero-title mb-6"
             >
               Quiero ser <br /> Voluntario
             </motion.h1>
@@ -285,7 +285,7 @@ export default function VoluntariadoPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base md:text-display-subtitle text-secondary mx-auto max-w-sm md:max-w-[500px] text-pretty mb-14"
+              className="font-alte text-base md:text-display-subtitle text-secondary mx-auto max-w-sm md:max-w-[500px] text-pretty mb-14"
             >
               Explora búsquedas activas de voluntariado o completa tu perfil
               para formar parte de futuras oportunidades.
@@ -337,7 +337,7 @@ export default function VoluntariadoPage() {
                   className="text-center mb-12"
                 >
                   <div className="inline-flex items-center bg-primary rounded-full px-6 md:px-8 py-1 md:py-1.5 shadow-lg">
-                    <span className="text-light text-sm md:text-pill-label uppercase">
+                    <span className="font-alte text-light text-sm md:text-pill-label uppercase">
                       Voluntariados Disponibles
                     </span>
                   </div>
@@ -594,7 +594,7 @@ export default function VoluntariadoPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="text-4xl md:text-section-title text-primary mb-10"
+                className="font-alte-bold uppercase text-4xl md:text-section-title text-primary mb-10"
               >
                 Tu Perfil También <br /> Puede Generar Impacto
               </motion.h2>
@@ -604,7 +604,7 @@ export default function VoluntariadoPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-base md:text-display-subtitle text-primary mx-auto max-w-2xl mb-12"
+                className="font-alte text-base md:text-display-subtitle text-primary mx-auto max-w-2xl mb-12"
               >
                 Si hoy no ves una propuesta que se ajuste a tu
                 <br className="hidden md:inline" /> disponibilidad o intereses,
@@ -619,7 +619,7 @@ export default function VoluntariadoPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 onClick={() => openModal()}
-                className="px-10 py-4 bg-[hsla(230,100%,65%,1)] text-[hsla(228,6%,85%,1)] text-sm md:text-button-large rounded-full hover:brightness-110 transition shadow-lg cursor-pointer"
+                className="px-10 py-4 bg-[hsla(230,100%,65%,1)] text-[hsla(228,6%,85%,1)] font-alte-bold uppercase text-sm md:text-button-large rounded-full hover:brightness-110 transition shadow-lg cursor-pointer"
               >
                 Crear Perfil de Voluntario
               </motion.button>
@@ -869,12 +869,6 @@ export default function VoluntariadoPage() {
                   className="hover:text-accent transition-colors"
                 >
                   Instagram
-                </a>
-                <a
-                  href="tel:+34613036362"
-                  className="hover:text-accent transition-colors"
-                >
-                  +34 613 03 63 62
                 </a>
               </div>
 

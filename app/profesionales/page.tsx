@@ -413,7 +413,7 @@ export default function ProfesionalesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-4xl md:text-hero-title mb-8"
+              className="font-alte-bold uppercase text-4xl md:text-hero-title mb-8"
             >
               Profesionales <br /> que impactan
             </motion.h1>
@@ -994,12 +994,6 @@ export default function ProfesionalesPage() {
                   className="hover:text-accent transition-colors"
                 >
                   Instagram
-                </a>
-                <a
-                  href="tel:+34613036362"
-                  className="hover:text-accent transition-colors"
-                >
-                  +34 613 03 63 62
                 </a>
               </div>
 
